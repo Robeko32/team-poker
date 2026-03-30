@@ -156,7 +156,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--f);font-size:14px;
     <div class="logo">♠</div>
     <div>
       <h1>Poker Tracker</h1>
-      <div class="hdr-sub" id="fecha-lbl">domingo, 29 de marzo de 2026</div>
+      <div class="hdr-sub" id="fecha-lbl">lunes, 30 de marzo de 2026</div>
     </div>
   </div>
   <div class="hdr-right">
@@ -178,19 +178,19 @@ body{background:var(--bg);color:var(--text);font-family:var(--f);font-size:14px;
       <option value="corto">Corto ($10.000/caja)</option>
     </select>
   </div>
-  <div class="cf"><label>Host</label><select id="cfg-host" data-ddg-inputtype="unknown"><option value="">— seleccionar —</option><option value="Blandi">Blandi</option><option value="Casi">Casi</option><option value="Con K">Con K</option><option value="Curly">Curly</option><option value="Denim">Denim</option><option value="Donary">Donary</option><option value="Elmer">Elmer</option><option value="Papito">Papito</option><option value="Roben">Roben</option></select></div>
+  <div class="cf"><label>Host</label><select id="cfg-host" data-ddg-inputtype="unknown"><option value="">— seleccionar —</option><option value="Blandi">Blandi</option><option value="Casi" selected="">Casi</option><option value="Con K">Con K</option><option value="Curly">Curly</option><option value="Denim">Denim</option><option value="Donary">Donary</option><option value="Elmer">Elmer</option><option value="Papito">Papito</option><option value="Roben">Roben</option></select></div>
   <div class="cf"><label># Torneo</label><input type="number" id="cfg-nro" value="1" min="1" max="9" data-ddg-inputtype="unknown"></div>
 </div>
 
 <div class="sum">
-  <div class="sc"><div class="sl">Jugadores</div><div class="sv" id="s-jug">9</div></div>
-  <div class="sc g"><div class="sl">Total cajas</div><div class="sv" id="s-cajas">9</div></div>
-  <div class="sc g"><div class="sl">Pozo</div><div class="sv" id="s-pozo">$45.000</div></div>
-  <div class="sc b"><div class="sl">Ganadores</div><div class="sv" id="s-gan">4</div></div>
-  <div class="sc a"><div class="sl">Cobro host</div><div class="sv" id="s-host">—</div></div>
+  <div class="sc"><div class="sl">Jugadores</div><div class="sv" id="s-jug">8</div></div>
+  <div class="sc g"><div class="sl">Total cajas</div><div class="sv" id="s-cajas">8</div></div>
+  <div class="sc g"><div class="sl">Pozo</div><div class="sv" id="s-pozo">$40.000</div></div>
+  <div class="sc b"><div class="sl">Ganadores</div><div class="sv" id="s-gan">3</div></div>
+  <div class="sc a"><div class="sl">Cobro host</div><div class="sv" id="s-host">$56.000</div></div>
 </div>
 
-<div class="pbar" id="pbar"><span class="pbar-lbl">Premios</span><div class="pc"><span class="pc-pos gold">1°</span><span class="pc-pct">40%</span><span class="pc-amt">$18.000</span></div><div class="pc"><span class="pc-pos silver">2°</span><span class="pc-pct">30%</span><span class="pc-amt">$13.500</span></div><div class="pc"><span class="pc-pos bronze">3°</span><span class="pc-pct">20%</span><span class="pc-amt">$9.000</span></div><div class="pc"><span class="pc-pos fourth">4°</span><span class="pc-pct">10%</span><span class="pc-amt">$4.500</span></div></div>
+<div class="pbar" id="pbar"><span class="pbar-lbl">Premios</span><div class="pc"><span class="pc-pos gold">1°</span><span class="pc-pct">50%</span><span class="pc-amt">$20.000</span></div><div class="pc"><span class="pc-pos silver">2°</span><span class="pc-pct">30%</span><span class="pc-amt">$12.000</span></div><div class="pc"><span class="pc-pos bronze">3°</span><span class="pc-pct">20%</span><span class="pc-amt">$8.000</span></div></div>
 
 <div class="rnote"><button class="btn" id="btn-reiniciar" style="font-size:11px;height:26px;color:var(--hint)">Reiniciar torneo actual</button></div>
 
@@ -199,7 +199,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--f);font-size:14px;
     <th>Jugador</th><th>Asiste</th><th>Cajas ini.</th><th>Re-buys</th>
     <th>Total</th><th>Buy-In</th><th>Posición</th><th>Premio</th><th>Resultado</th>
   </tr></thead>
-  <tbody id="tbody"><tr class="" data-i="0"><td><div class="pn">Blandi</div></td><td><button class="chk on" data-action="chk" data-i="0"><svg viewBox="0 0 16 16" fill="none"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></button></td><td><div class="stp"><button class="sb" data-action="ini-" data-i="0" disabled="">−</button><span class="sv2">1</span><button class="sb" data-action="ini+" data-i="0">+</button></div></td><td><div class="stp"><button class="sb" data-action="reb-" data-i="0" disabled="">−</button><span class="sv2">0</span><button class="sb" data-action="reb+" data-i="0">+</button></div></td><td><span style="font-family:var(--m)">1</span></td><td><span class="bd">$5.000</span></td><td><select class="ps" data-action="pos" data-i="0" data-ddg-inputtype="unknown"><option value="0">—</option><option value="1">1°</option><option value="2">2°</option><option value="3">3°</option><option value="4">4°</option></select></td><td><input type="text" inputmode="numeric" class="premio-inp" data-action="premio" data-i="0" value="0" placeholder="auto" data-ddg-inputtype="unknown"></td><td><span class="rn">$-13.000</span></td></tr><tr class="" data-i="1"><td><div class="pn">Casi<span class="pill pnx">próximo</span></div></td><td><button class="chk on" data-action="chk" data-i="1"><svg viewBox="0 0 16 16" fill="none"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></button></td><td><div class="stp"><button class="sb" data-action="ini-" data-i="1" disabled="">−</button><span class="sv2">1</span><button class="sb" data-action="ini+" data-i="1">+</button></div></td><td><div class="stp"><button class="sb" data-action="reb-" data-i="1" disabled="">−</button><span class="sv2">0</span><button class="sb" data-action="reb+" data-i="1">+</button></div></td><td><span style="font-family:var(--m)">1</span></td><td><span class="bd">$5.000</span></td><td><select class="ps" data-action="pos" data-i="1" data-ddg-inputtype="unknown"><option value="0">—</option><option value="1">1°</option><option value="2">2°</option><option value="3">3°</option><option value="4">4°</option></select></td><td><input type="text" inputmode="numeric" class="premio-inp" data-action="premio" data-i="1" value="0" placeholder="auto" data-ddg-inputtype="unknown"></td><td><span class="rn">$-13.000</span></td></tr><tr class="" data-i="2"><td><div class="pn">Con K</div></td><td><button class="chk on" data-action="chk" data-i="2"><svg viewBox="0 0 16 16" fill="none"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></button></td><td><div class="stp"><button class="sb" data-action="ini-" data-i="2" disabled="">−</button><span class="sv2">1</span><button class="sb" data-action="ini+" data-i="2">+</button></div></td><td><div class="stp"><button class="sb" data-action="reb-" data-i="2" disabled="">−</button><span class="sv2">0</span><button class="sb" data-action="reb+" data-i="2">+</button></div></td><td><span style="font-family:var(--m)">1</span></td><td><span class="bd">$5.000</span></td><td><select class="ps" data-action="pos" data-i="2" data-ddg-inputtype="unknown"><option value="0">—</option><option value="1">1°</option><option value="2">2°</option><option value="3">3°</option><option value="4">4°</option></select></td><td><input type="text" inputmode="numeric" class="premio-inp" data-action="premio" data-i="2" value="0" placeholder="auto" data-ddg-inputtype="unknown"></td><td><span class="rn">$-13.000</span></td></tr><tr class="" data-i="3"><td><div class="pn">Curly</div></td><td><button class="chk on" data-action="chk" data-i="3"><svg viewBox="0 0 16 16" fill="none"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></button></td><td><div class="stp"><button class="sb" data-action="ini-" data-i="3" disabled="">−</button><span class="sv2">1</span><button class="sb" data-action="ini+" data-i="3">+</button></div></td><td><div class="stp"><button class="sb" data-action="reb-" data-i="3" disabled="">−</button><span class="sv2">0</span><button class="sb" data-action="reb+" data-i="3">+</button></div></td><td><span style="font-family:var(--m)">1</span></td><td><span class="bd">$5.000</span></td><td><select class="ps" data-action="pos" data-i="3" data-ddg-inputtype="unknown"><option value="0">—</option><option value="1">1°</option><option value="2">2°</option><option value="3">3°</option><option value="4">4°</option></select></td><td><input type="text" inputmode="numeric" class="premio-inp" data-action="premio" data-i="3" value="0" placeholder="auto" data-ddg-inputtype="unknown"></td><td><span class="rn">$-13.000</span></td></tr><tr class="" data-i="4"><td><div class="pn">Denim</div></td><td><button class="chk on" data-action="chk" data-i="4"><svg viewBox="0 0 16 16" fill="none"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></button></td><td><div class="stp"><button class="sb" data-action="ini-" data-i="4" disabled="">−</button><span class="sv2">1</span><button class="sb" data-action="ini+" data-i="4">+</button></div></td><td><div class="stp"><button class="sb" data-action="reb-" data-i="4" disabled="">−</button><span class="sv2">0</span><button class="sb" data-action="reb+" data-i="4">+</button></div></td><td><span style="font-family:var(--m)">1</span></td><td><span class="bd">$5.000</span></td><td><select class="ps" data-action="pos" data-i="4" data-ddg-inputtype="unknown"><option value="0">—</option><option value="1">1°</option><option value="2">2°</option><option value="3">3°</option><option value="4">4°</option></select></td><td><input type="text" inputmode="numeric" class="premio-inp" data-action="premio" data-i="4" value="0" placeholder="auto" data-ddg-inputtype="unknown"></td><td><span class="rn">$-13.000</span></td></tr><tr class="" data-i="5"><td><div class="pn">Donary</div></td><td><button class="chk on" data-action="chk" data-i="5"><svg viewBox="0 0 16 16" fill="none"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></button></td><td><div class="stp"><button class="sb" data-action="ini-" data-i="5" disabled="">−</button><span class="sv2">1</span><button class="sb" data-action="ini+" data-i="5">+</button></div></td><td><div class="stp"><button class="sb" data-action="reb-" data-i="5" disabled="">−</button><span class="sv2">0</span><button class="sb" data-action="reb+" data-i="5">+</button></div></td><td><span style="font-family:var(--m)">1</span></td><td><span class="bd">$5.000</span></td><td><select class="ps" data-action="pos" data-i="5" data-ddg-inputtype="unknown"><option value="0">—</option><option value="1">1°</option><option value="2">2°</option><option value="3">3°</option><option value="4">4°</option></select></td><td><input type="text" inputmode="numeric" class="premio-inp" data-action="premio" data-i="5" value="0" placeholder="auto" data-ddg-inputtype="unknown"></td><td><span class="rn">$-13.000</span></td></tr><tr class="" data-i="6"><td><div class="pn">Elmer</div></td><td><button class="chk on" data-action="chk" data-i="6"><svg viewBox="0 0 16 16" fill="none"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></button></td><td><div class="stp"><button class="sb" data-action="ini-" data-i="6" disabled="">−</button><span class="sv2">1</span><button class="sb" data-action="ini+" data-i="6">+</button></div></td><td><div class="stp"><button class="sb" data-action="reb-" data-i="6" disabled="">−</button><span class="sv2">0</span><button class="sb" data-action="reb+" data-i="6">+</button></div></td><td><span style="font-family:var(--m)">1</span></td><td><span class="bd">$5.000</span></td><td><select class="ps" data-action="pos" data-i="6" data-ddg-inputtype="unknown"><option value="0">—</option><option value="1">1°</option><option value="2">2°</option><option value="3">3°</option><option value="4">4°</option></select></td><td><input type="text" inputmode="numeric" class="premio-inp" data-action="premio" data-i="6" value="0" placeholder="auto" data-ddg-inputtype="unknown"></td><td><span class="rn">$-13.000</span></td></tr><tr class="" data-i="7"><td><div class="pn">Papito</div></td><td><button class="chk on" data-action="chk" data-i="7"><svg viewBox="0 0 16 16" fill="none"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></button></td><td><div class="stp"><button class="sb" data-action="ini-" data-i="7" disabled="">−</button><span class="sv2">1</span><button class="sb" data-action="ini+" data-i="7">+</button></div></td><td><div class="stp"><button class="sb" data-action="reb-" data-i="7" disabled="">−</button><span class="sv2">0</span><button class="sb" data-action="reb+" data-i="7">+</button></div></td><td><span style="font-family:var(--m)">1</span></td><td><span class="bd">$5.000</span></td><td><select class="ps" data-action="pos" data-i="7" data-ddg-inputtype="unknown"><option value="0">—</option><option value="1">1°</option><option value="2">2°</option><option value="3">3°</option><option value="4">4°</option></select></td><td><input type="text" inputmode="numeric" class="premio-inp" data-action="premio" data-i="7" value="0" placeholder="auto" data-ddg-inputtype="unknown"></td><td><span class="rn">$-13.000</span></td></tr><tr class="" data-i="8"><td><div class="pn">Roben</div></td><td><button class="chk on" data-action="chk" data-i="8"><svg viewBox="0 0 16 16" fill="none"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></button></td><td><div class="stp"><button class="sb" data-action="ini-" data-i="8" disabled="">−</button><span class="sv2">1</span><button class="sb" data-action="ini+" data-i="8">+</button></div></td><td><div class="stp"><button class="sb" data-action="reb-" data-i="8" disabled="">−</button><span class="sv2">0</span><button class="sb" data-action="reb+" data-i="8">+</button></div></td><td><span style="font-family:var(--m)">1</span></td><td><span class="bd">$5.000</span></td><td><select class="ps" data-action="pos" data-i="8" data-ddg-inputtype="unknown"><option value="0">—</option><option value="1">1°</option><option value="2">2°</option><option value="3">3°</option><option value="4">4°</option></select></td><td><input type="text" inputmode="numeric" class="premio-inp" data-action="premio" data-i="8" value="0" placeholder="auto" data-ddg-inputtype="unknown"></td><td><span class="rn">$-13.000</span></td></tr></tbody>
+  <tbody id="tbody"><tr class="" data-i="0"><td><div class="pn">Blandi</div></td><td><button class="chk on" data-action="chk" data-i="0"><svg viewBox="0 0 16 16" fill="none"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></button></td><td><div class="stp"><button class="sb" data-action="ini-" data-i="0" disabled="">−</button><span class="sv2">1</span><button class="sb" data-action="ini+" data-i="0">+</button></div></td><td><div class="stp"><button class="sb" data-action="reb-" data-i="0" disabled="">−</button><span class="sv2">0</span><button class="sb" data-action="reb+" data-i="0">+</button></div></td><td><span style="font-family:var(--m)">1</span></td><td><span class="bd">$5.000</span></td><td><select class="ps" data-action="pos" data-i="0" data-ddg-inputtype="unknown"><option value="0">—</option><option value="1">1°</option><option value="2">2°</option><option value="3">3°</option></select></td><td><input type="text" inputmode="numeric" class="premio-inp" data-action="premio" data-i="0" value="0" placeholder="auto" data-ddg-inputtype="unknown"></td><td><span class="rn">$-13.000</span></td></tr><tr class="" data-i="1"><td><div class="pn">Casi<span class="pill ph">host</span></div></td><td><button class="chk on" data-action="chk" data-i="1"><svg viewBox="0 0 16 16" fill="none"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></button></td><td><div class="stp"><button class="sb" data-action="ini-" data-i="1" disabled="">−</button><span class="sv2">1</span><button class="sb" data-action="ini+" data-i="1">+</button></div></td><td><div class="stp"><button class="sb" data-action="reb-" data-i="1" disabled="">−</button><span class="sv2">0</span><button class="sb" data-action="reb+" data-i="1">+</button></div></td><td><span style="font-family:var(--m)">1</span></td><td><span class="bd">$5.000</span></td><td><select class="ps" data-action="pos" data-i="1" data-ddg-inputtype="unknown"><option value="0">—</option><option value="1">1°</option><option value="2">2°</option><option value="3">3°</option></select></td><td><input type="text" inputmode="numeric" class="premio-inp" data-action="premio" data-i="1" value="0" placeholder="auto" data-ddg-inputtype="unknown"></td><td><span class="rp">+$51.000</span></td></tr><tr class="" data-i="2"><td><div class="pn">Con K</div></td><td><button class="chk on" data-action="chk" data-i="2"><svg viewBox="0 0 16 16" fill="none"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></button></td><td><div class="stp"><button class="sb" data-action="ini-" data-i="2" disabled="">−</button><span class="sv2">1</span><button class="sb" data-action="ini+" data-i="2">+</button></div></td><td><div class="stp"><button class="sb" data-action="reb-" data-i="2" disabled="">−</button><span class="sv2">0</span><button class="sb" data-action="reb+" data-i="2">+</button></div></td><td><span style="font-family:var(--m)">1</span></td><td><span class="bd">$5.000</span></td><td><select class="ps" data-action="pos" data-i="2" data-ddg-inputtype="unknown"><option value="0">—</option><option value="1">1°</option><option value="2">2°</option><option value="3">3°</option></select></td><td><input type="text" inputmode="numeric" class="premio-inp" data-action="premio" data-i="2" value="0" placeholder="auto" data-ddg-inputtype="unknown"></td><td><span class="rn">$-13.000</span></td></tr><tr class="" data-i="3"><td><div class="pn">Curly</div></td><td><button class="chk on" data-action="chk" data-i="3"><svg viewBox="0 0 16 16" fill="none"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></button></td><td><div class="stp"><button class="sb" data-action="ini-" data-i="3" disabled="">−</button><span class="sv2">1</span><button class="sb" data-action="ini+" data-i="3">+</button></div></td><td><div class="stp"><button class="sb" data-action="reb-" data-i="3" disabled="">−</button><span class="sv2">0</span><button class="sb" data-action="reb+" data-i="3">+</button></div></td><td><span style="font-family:var(--m)">1</span></td><td><span class="bd">$5.000</span></td><td><select class="ps" data-action="pos" data-i="3" data-ddg-inputtype="unknown"><option value="0">—</option><option value="1">1°</option><option value="2">2°</option><option value="3">3°</option></select></td><td><input type="text" inputmode="numeric" class="premio-inp" data-action="premio" data-i="3" value="0" placeholder="auto" data-ddg-inputtype="unknown"></td><td><span class="rn">$-13.000</span></td></tr><tr class=" absent" data-i="4"><td><div class="pn">Denim</div></td><td><button class="chk" data-action="chk" data-i="4"><svg viewBox="0 0 16 16" fill="none"><line x1="4" y1="4" x2="12" y2="12" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round"></line><line x1="12" y1="4" x2="4" y2="12" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round"></line></svg></button></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td><span class="rz">—</span></td></tr><tr class="" data-i="5"><td><div class="pn">Donary</div></td><td><button class="chk on" data-action="chk" data-i="5"><svg viewBox="0 0 16 16" fill="none"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></button></td><td><div class="stp"><button class="sb" data-action="ini-" data-i="5" disabled="">−</button><span class="sv2">1</span><button class="sb" data-action="ini+" data-i="5">+</button></div></td><td><div class="stp"><button class="sb" data-action="reb-" data-i="5" disabled="">−</button><span class="sv2">0</span><button class="sb" data-action="reb+" data-i="5">+</button></div></td><td><span style="font-family:var(--m)">1</span></td><td><span class="bd">$5.000</span></td><td><select class="ps" data-action="pos" data-i="5" data-ddg-inputtype="unknown"><option value="0">—</option><option value="1">1°</option><option value="2">2°</option><option value="3">3°</option></select></td><td><input type="text" inputmode="numeric" class="premio-inp" data-action="premio" data-i="5" value="0" placeholder="auto" data-ddg-inputtype="unknown"></td><td><span class="rn">$-13.000</span></td></tr><tr class="" data-i="6"><td><div class="pn">Elmer</div></td><td><button class="chk on" data-action="chk" data-i="6"><svg viewBox="0 0 16 16" fill="none"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></button></td><td><div class="stp"><button class="sb" data-action="ini-" data-i="6" disabled="">−</button><span class="sv2">1</span><button class="sb" data-action="ini+" data-i="6">+</button></div></td><td><div class="stp"><button class="sb" data-action="reb-" data-i="6" disabled="">−</button><span class="sv2">0</span><button class="sb" data-action="reb+" data-i="6">+</button></div></td><td><span style="font-family:var(--m)">1</span></td><td><span class="bd">$5.000</span></td><td><select class="ps" data-action="pos" data-i="6" data-ddg-inputtype="unknown"><option value="0">—</option><option value="1">1°</option><option value="2">2°</option><option value="3">3°</option></select></td><td><input type="text" inputmode="numeric" class="premio-inp" data-action="premio" data-i="6" value="0" placeholder="auto" data-ddg-inputtype="unknown"></td><td><span class="rn">$-13.000</span></td></tr><tr class="" data-i="7"><td><div class="pn">Papito</div></td><td><button class="chk on" data-action="chk" data-i="7"><svg viewBox="0 0 16 16" fill="none"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></button></td><td><div class="stp"><button class="sb" data-action="ini-" data-i="7" disabled="">−</button><span class="sv2">1</span><button class="sb" data-action="ini+" data-i="7">+</button></div></td><td><div class="stp"><button class="sb" data-action="reb-" data-i="7" disabled="">−</button><span class="sv2">0</span><button class="sb" data-action="reb+" data-i="7">+</button></div></td><td><span style="font-family:var(--m)">1</span></td><td><span class="bd">$5.000</span></td><td><select class="ps" data-action="pos" data-i="7" data-ddg-inputtype="unknown"><option value="0">—</option><option value="1">1°</option><option value="2">2°</option><option value="3">3°</option></select></td><td><input type="text" inputmode="numeric" class="premio-inp" data-action="premio" data-i="7" value="0" placeholder="auto" data-ddg-inputtype="unknown"></td><td><span class="rn">$-13.000</span></td></tr><tr class="" data-i="8"><td><div class="pn">Roben</div></td><td><button class="chk on" data-action="chk" data-i="8"><svg viewBox="0 0 16 16" fill="none"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></button></td><td><div class="stp"><button class="sb" data-action="ini-" data-i="8" disabled="">−</button><span class="sv2">1</span><button class="sb" data-action="ini+" data-i="8">+</button></div></td><td><div class="stp"><button class="sb" data-action="reb-" data-i="8" disabled="">−</button><span class="sv2">0</span><button class="sb" data-action="reb+" data-i="8">+</button></div></td><td><span style="font-family:var(--m)">1</span></td><td><span class="bd">$5.000</span></td><td><select class="ps" data-action="pos" data-i="8" data-ddg-inputtype="unknown"><option value="0">—</option><option value="1">1°</option><option value="2">2°</option><option value="3">3°</option></select></td><td><input type="text" inputmode="numeric" class="premio-inp" data-action="premio" data-i="8" value="0" placeholder="auto" data-ddg-inputtype="unknown"></td><td><span class="rn">$-13.000</span></td></tr></tbody>
 </table></div>
 
 <div class="panel">
@@ -900,176 +900,199 @@ document.getElementById("btn-share").addEventListener("click", function() {
 
   // ── jsPDF ────────────────────────────────────────────────────────────────
   var doc = new window.jspdf.jsPDF({orientation:"portrait",unit:"mm",format:"a4"});
-  var PW=210, PH=297, M=12, CW=PW-M*2;
+  var PW=210, PH=297, M=10, CW=PW-M*2;
+  var FS=10;  // base font size — larger = easier to read on mobile
 
   function fmtN(n){ return "$"+Math.round(Math.abs(n)).toLocaleString("es-CL"); }
   function fmtS2(n){ return (n>=0?"+":"-")+fmtN(n); }
 
+  // Auto-fit columns: measure text width and set column widths proportionally
+  function measureCol(texts, label, bold) {
+    doc.setFontSize(FS);
+    var max = doc.getTextWidth(label.toUpperCase());
+    texts.forEach(function(t){
+      doc.setFont("helvetica", bold?"bold":"normal");
+      var w = doc.getTextWidth(String(t));
+      if(w > max) max = w;
+    });
+    return max + 4; // padding
+  }
+
   function pageHeader(title) {
-    // White background (default)
-    // Header bar — dark green strip
     doc.setFillColor(15,23,42);
-    doc.rect(0,0,PW,18,"F");
-    doc.setFontSize(13); doc.setFont("helvetica","bold"); doc.setTextColor(74,222,128);
-    doc.text("♠ Club de Poker", M, 8);
-    doc.setFontSize(7.5); doc.setFont("helvetica","normal"); doc.setTextColor(148,163,184);
-    doc.text("Torneo #"+T.nro+" · "+fStr+" · Host: "+(T.host||"—")+" · Pozo: $"+Math.round(c.pozo).toLocaleString("es-CL"), M, 14);
-
+    doc.rect(0,0,PW,20,"F");
+    doc.setFontSize(14); doc.setFont("helvetica","bold"); doc.setTextColor(74,222,128);
+    doc.text("Club de Poker", M, 9);
+    doc.setFontSize(8); doc.setFont("helvetica","normal"); doc.setTextColor(148,163,184);
+    // Split subtitle into two lines if needed
+    doc.text("Torneo #"+T.nro+"  |  "+fStr, M, 15);
+    doc.text("Host: "+(T.host||"—")+"  |  Pozo: "+fmtN(c.pozo), PW-M, 15, {align:"right"});
     // Section title
-    doc.setFontSize(9); doc.setFont("helvetica","bold"); doc.setTextColor(15,23,42);
-    doc.text(title, M, 25);
+    doc.setFontSize(11); doc.setFont("helvetica","bold"); doc.setTextColor(15,23,42);
+    doc.text(title, M, 28);
+    // Header rule
+    doc.setDrawColor(203,213,225); doc.setLineWidth(0.4);
+    doc.line(M, 30, PW-M, 30);
+  }
 
-    // Table header bar
+  // Generic table renderer with auto-fit columns
+  function drawTable(headers, rows, startY) {
+    // headers: [{label, key, align, bold, color_fn}]
+    // rows: array of objects
+    var RH = FS*0.9 + 4;  // row height based on font size
+
+    // Calculate column widths
+    var colWidths = headers.map(function(h) {
+      var vals = rows.map(function(r){ return r[h.key] !== undefined ? r[h.key] : ""; });
+      return measureCol(vals, h.label, h.bold);
+    });
+
+    // Scale to fit CW
+    var total = colWidths.reduce(function(a,b){return a+b;},0);
+    if(total > CW) {
+      var scale = CW / total;
+      colWidths = colWidths.map(function(w){ return w * scale; });
+    }
+
+    // Draw header row
     doc.setFillColor(241,245,249);
-    doc.rect(M,27,CW,7,"F");
-    doc.setDrawColor(203,213,225);
-    doc.rect(M,27,CW,7,"S");
+    doc.rect(M, startY, CW, RH, "F");
+    doc.setDrawColor(203,213,225); doc.setLineWidth(0.3);
+    doc.rect(M, startY, CW, RH, "S");
+
+    doc.setFontSize(FS-1); doc.setFont("helvetica","bold"); doc.setTextColor(100,116,139);
+    var cx = M;
+    headers.forEach(function(h, hi) {
+      var x = h.align === "right" ? cx+colWidths[hi]-1 : h.align === "center" ? cx+colWidths[hi]/2 : cx+1;
+      doc.text(h.label.toUpperCase(), x, startY+RH/2+0.5, {align: h.align||"left", baseline:"middle"});
+      cx += colWidths[hi];
+    });
+
+    // Draw data rows
+    var ry = startY + RH;
+    rows.forEach(function(row, ri) {
+      var bg = ri%2===0 ? [248,250,252] : [255,255,255];
+      doc.setFillColor(bg[0],bg[1],bg[2]);
+      doc.rect(M, ry, CW, RH, "F");
+      doc.setDrawColor(226,232,240); doc.setLineWidth(0.2);
+      doc.line(M, ry+RH, M+CW, ry+RH);
+
+      var cx2 = M;
+      headers.forEach(function(h, hi) {
+        var val = row[h.key] !== undefined ? row[h.key] : "";
+        var color = h.color_fn ? h.color_fn(row) : [15,23,42];
+        doc.setTextColor(color[0],color[1],color[2]);
+        doc.setFont("helvetica", h.bold_fn ? (h.bold_fn(row)?"bold":"normal") : (h.bold?"bold":"normal"));
+        doc.setFontSize(FS);
+        var x = h.align==="right" ? cx2+colWidths[hi]-1 : h.align==="center" ? cx2+colWidths[hi]/2 : cx2+1;
+        doc.text(String(val), x, ry+RH/2+0.5, {align:h.align||"left", baseline:"middle", maxWidth:colWidths[hi]-2});
+        cx2 += colWidths[hi];
+      });
+      ry += RH;
+    });
+
+    // Outer border
+    doc.setDrawColor(203,213,225); doc.setLineWidth(0.4);
+    doc.rect(M, startY, CW, RH*(rows.length+1), "S");
+
+    return ry;
   }
 
   // ── PÁGINA 1: Resultado del torneo ───────────────────────────────────────
   pageHeader("RESULTADO DEL TORNEO");
 
-  // Column headers
-  // T1 columns — compact for mobile
-  var c1x = [M+2, M+50, M+66, M+94, M+122, M+146];
-  var c1w = [46,  14,   26,   26,    22,    40];
-  var c1l = ["Jugador","Caj","Buy-In","Premio","Comida","Resultado"];
-  var c1a = ["left","center","right","right","right","right"];
-  doc.setFontSize(6.5); doc.setFont("helvetica","bold"); doc.setTextColor(100,116,139);
-  for(var ci=0;ci<c1l.length;ci++){
-    var tx=c1a[ci]==="right"?c1x[ci]+c1w[ci]:c1a[ci]==="center"?c1x[ci]+c1w[ci]/2:c1x[ci];
-    doc.text(c1l[ci].toUpperCase(),tx,32,{align:c1a[ci]});
-  }
-
-  var medals2 = ["1°","2°","3°"];
-  var ry = 36; var RH1=8;
-  t1.forEach(function(r, ri) {
-    var bg=ri%2===0?[248,250,252]:[255,255,255];
-    doc.setFillColor(bg[0],bg[1],bg[2]);
-    doc.rect(M,ry-2,CW,RH1,"F");
-    doc.setDrawColor(226,232,240);
-    doc.line(M,ry+RH1-2,M+CW,ry+RH1-2);
-
-    var wi=t1.filter(function(x){return x.a;}).indexOf(r);
-    var pre=r.a&&wi>=0&&wi<3&&r.rj>0?medals2[wi]+" ":"";
-    var nameCol=r.a?(r.isHost?[37,99,235]:[15,23,42]):[148,163,184];
-    doc.setFontSize(8.5); doc.setFont("helvetica",r.a?"bold":"normal");
-    doc.setTextColor(nameCol[0],nameCol[1],nameCol[2]);
-    doc.text(pre+r.name+(r.isHost?" (host)":""),c1x[0],ry+3.5,{maxWidth:c1w[0]});
-
-    if(r.a){
-      doc.setFont("helvetica","normal"); doc.setTextColor(100,116,139);
-      doc.text(String(r.tc),c1x[1]+c1w[1]/2,ry+3.5,{align:"center"});
-      doc.text(fmtN(r.bi),c1x[2]+c1w[2],ry+3.5,{align:"right"});
-      doc.setTextColor(r.pm>0?[180,83,9][0]:100,r.pm>0?[180,83,9][1]:116,r.pm>0?[180,83,9][2]:139);
-      if(r.pm>0){doc.setTextColor(180,83,9);}else{doc.setTextColor(100,116,139);}
-      doc.text(r.pm>0?fmtN(r.pm):"—",c1x[3]+c1w[3],ry+3.5,{align:"right"});
-      if(r.comida>0){doc.setTextColor(22,163,74);}else{doc.setTextColor(220,38,38);}
-      doc.text(r.comida>0?("+"+fmtN(r.comida)):fmtN(r.comida),c1x[4]+c1w[4],ry+3.5,{align:"right"});
-      if(r.rj>=0){doc.setTextColor(22,163,74);}else{doc.setTextColor(220,38,38);}
-      doc.setFont("helvetica","bold"); doc.setFontSize(9);
-      doc.text(fmtS2(r.rj),c1x[5]+c1w[5],ry+3.5,{align:"right"});
-    }
-    ry+=RH1;
+  var medals2 = ["1 ", "2 ", "3 "];
+  var t1rows = t1.map(function(r, ri) {
+    var wi = ri; // already sorted descending
+    var medal = ri<3 && r.rj>0 ? medals2[ri] : "";
+    return {
+      jugador:  medal + r.name + (r.isHost ? " (host)" : ""),
+      cajas:    String(r.tc),
+      buyin:    fmtN(r.bi),
+      premio:   r.pm>0 ? fmtN(r.pm) : "—",
+      comida:   r.comida>0 ? "+"+fmtN(r.comida) : fmtN(r.comida),
+      resultado: fmtS2(r.rj),
+      _r: r
+    };
   });
+
+  var t1headers = [
+    {label:"Jugador",   key:"jugador",   align:"left",
+      color_fn: function(row){ return row._r.isHost?[37,99,235]:[15,23,42]; },
+      bold_fn:  function(row){ return true; }},
+    {label:"Cajas",    key:"cajas",    align:"center", color_fn:function(){return [100,116,139];}},
+    {label:"Buy-In",   key:"buyin",    align:"right",  color_fn:function(){return [100,116,139];}},
+    {label:"Premio",   key:"premio",   align:"right",
+      color_fn: function(row){ return row._r.pm>0?[180,83,9]:[100,116,139]; }, bold:true},
+    {label:"Comida",   key:"comida",   align:"right",
+      color_fn: function(row){ return row._r.comida>0?[22,163,74]:[220,38,38]; }},
+    {label:"Resultado",key:"resultado",align:"right",
+      color_fn: function(row){ return row._r.rj>=0?[22,163,74]:[220,38,38]; }, bold:true}
+  ];
+
+  drawTable(t1headers, t1rows, 32);
 
   // ── PÁGINA 2: Ranking acumulado ──────────────────────────────────────────
   doc.addPage();
   pageHeader("RANKING ACUMULADO DEL AÑO");
 
-  var medals3=["1°","2°","3°"];
-  doc.setFontSize(6.5); doc.setFont("helvetica","bold"); doc.setTextColor(100,116,139);
-  doc.text("#",M+6,32,{align:"center"});
-  doc.text("JUGADOR",M+14,32);
-  doc.text("TORNEOS",M+110,32,{align:"center"});
-  doc.text("ACUMULADO",M+CW,32,{align:"right"});
-
-  ry=36; var RH2=9;
-  t2.forEach(function(r,ri){
-    var bg=ri%2===0?[248,250,252]:[255,255,255];
-    doc.setFillColor(bg[0],bg[1],bg[2]);
-    doc.rect(M,ry-2,CW,RH2,"F");
-    doc.setDrawColor(226,232,240);
-    doc.line(M,ry+RH2-2,M+CW,ry+RH2-2);
-
-    if(ri<3){doc.setTextColor(180,83,9);}else{doc.setTextColor(100,116,139);}
-    doc.setFontSize(8.5); doc.setFont("helvetica","bold");
-    doc.text(ri<3?medals3[ri]:String(ri+1),M+6,ry+3.5,{align:"center"});
-
-    doc.setTextColor(15,23,42); doc.setFont("helvetica","bold");
-    doc.text(r.name,M+14,ry+3.5);
-
-    doc.setTextColor(100,116,139); doc.setFont("helvetica","normal");
-    doc.text(String(r.t),M+110,ry+3.5,{align:"center"});
-
-    if(r.res>=0){doc.setTextColor(22,163,74);}else{doc.setTextColor(220,38,38);}
-    doc.setFont("helvetica","bold"); doc.setFontSize(10);
-    doc.text(fmtS2(r.res),M+CW,ry+3.5,{align:"right"});
-    ry+=RH2;
+  var medals3 = ["1 ","2 ","3 "];
+  var t2rows = t2.map(function(r,ri){
+    return {
+      pos:      ri<3 ? medals3[ri]+(ri+1)+"." : String(ri+1)+".",
+      jugador:  r.name,
+      torneos:  String(r.t),
+      resultado: fmtS2(r.res),
+      _res: r.res
+    };
   });
+  var t2headers = [
+    {label:"#",        key:"pos",      align:"center", color_fn:function(row,ri){return [100,116,139];}},
+    {label:"Jugador",  key:"jugador",  align:"left",   bold:true, color_fn:function(){return [15,23,42];}},
+    {label:"Torneos",  key:"torneos",  align:"center", color_fn:function(){return [100,116,139];}},
+    {label:"Resultado",key:"resultado",align:"right",  bold:true,
+      color_fn:function(row){return row._res>=0?[22,163,74]:[220,38,38];}}
+  ];
+  drawTable(t2headers, t2rows, 32);
 
   // ── PÁGINA 3: Próximos host ──────────────────────────────────────────────
   doc.addPage();
-  pageHeader("PRÓXIMOS HOST (orden ascendente)");
+  pageHeader("PROXIMOS HOST");
 
-  var maxPct2=Math.max.apply(null,t3.map(function(r){return parseFloat(r.pct);}));
-  if(maxPct2<0.1)maxPct2=0.1;
-  doc.setFontSize(6.5); doc.setFont("helvetica","bold"); doc.setTextColor(100,116,139);
-  doc.text("JUGADOR",M+2,32); doc.text("% COMB.",M+100,32,{align:"center"}); doc.text("DISTRIBUCIÓN",M+120,32);
-  ry=36; var RH3=9;
-  t3.forEach(function(r,ri){
-    var isN=ri===0;
-    var bg=ri%2===0?[248,250,252]:[255,255,255];
-    doc.setFillColor(bg[0],bg[1],bg[2]);
-    doc.rect(M,ry-2,CW,RH3,"F");
-    doc.setDrawColor(226,232,240);
-    doc.line(M,ry+RH3-2,M+CW,ry+RH3-2);
-    if(isN){doc.setTextColor(124,58,237);}else{doc.setTextColor(15,23,42);}
-    doc.setFontSize(9); doc.setFont("helvetica",isN?"bold":"normal");
-    doc.text(r.name+(isN?" ← próximo":""),M+2,ry+3.5);
-    if(isN){doc.setTextColor(124,58,237);}else{doc.setTextColor(100,116,139);}
-    doc.setFont("helvetica","bold");
-    doc.text(r.pct+"%",M+100,ry+3.5,{align:"center"});
-    var barX=M+118, barW=CW-118+M, barH=3;
-    doc.setFillColor(226,232,240);
-    doc.roundedRect(barX,ry+1,barW,barH,1,1,"F");
-    var bf=Math.round(parseFloat(r.pct)/maxPct2*barW);
-    if(bf>0){
-      if(isN){doc.setFillColor(124,58,237);}else{doc.setFillColor(99,102,241);}
-      doc.roundedRect(barX,ry+1,bf,barH,1,1,"F");
-    }
-    ry+=RH3;
+  var t3rows = t3.map(function(r,ri){
+    return {
+      jugador: r.name + (ri===0?" <- proximo":""),
+      pct:     r.pct+"%",
+      _isNext: ri===0
+    };
   });
+  var t3headers = [
+    {label:"Jugador",    key:"jugador", align:"left",  bold:true,
+      color_fn:function(row){return row._isNext?[124,58,237]:[15,23,42];}},
+    {label:"% Combinado",key:"pct",     align:"right", bold:true,
+      color_fn:function(row){return row._isNext?[124,58,237]:[100,116,139];}}
+  ];
+  drawTable(t3headers, t3rows, 32);
 
   // ── PÁGINA 4: Liquidación ────────────────────────────────────────────────
   doc.addPage();
-  pageHeader("LIQUIDACIÓN — QUIÉN PAGA A QUIÉN");
+  pageHeader("LIQUIDACION");
 
-  ry=36; var RH4=10;
   if(pagos.length===0){
     doc.setFillColor(240,253,244);
-    doc.roundedRect(M,ry-2,CW,12,2,2,"F");
-    doc.setFontSize(10); doc.setFont("helvetica","bold"); doc.setTextColor(22,163,74);
-    doc.text("Todo cuadra — no hay pagos pendientes",M+CW/2,ry+4,{align:"center"});
+    doc.roundedRect(M,35,CW,14,2,2,"F");
+    doc.setFontSize(11); doc.setFont("helvetica","bold"); doc.setTextColor(22,163,74);
+    doc.text("Todo cuadra - no hay pagos pendientes",M+CW/2,43,{align:"center"});
   } else {
-    doc.setFontSize(6.5); doc.setFont("helvetica","bold"); doc.setTextColor(100,116,139);
-    doc.text("PAGA",M+2,32); doc.text("RECIBE",M+90,32); doc.text("MONTO",M+CW,32,{align:"right"});
-    pagos.forEach(function(pg,ri){
-      var bg=ri%2===0?[248,250,252]:[255,255,255];
-      doc.setFillColor(bg[0],bg[1],bg[2]);
-      doc.rect(M,ry-2,CW,RH4,"F");
-      doc.setDrawColor(226,232,240);
-      doc.line(M,ry+RH4-2,M+CW,ry+RH4-2);
-      doc.setFontSize(10); doc.setFont("helvetica","bold");
-      doc.setTextColor(220,38,38); doc.text(pg.de,M+2,ry+4.5);
-      doc.setTextColor(100,116,139); doc.setFont("helvetica","normal");
-      doc.text("->",M+82,ry+4.5);
-      doc.setTextColor(22,163,74); doc.setFont("helvetica","bold");
-      doc.text(pg.a,M+90,ry+4.5);
-      doc.setTextColor(15,23,42); doc.setFontSize(11);
-      doc.text(fmtN(pg.monto),M+CW,ry+4.5,{align:"right"});
-      ry+=RH4;
+    var t4rows = pagos.map(function(pg){
+      return {paga:pg.de, recibe:pg.a, monto:fmtN(pg.monto), _pg:pg};
     });
+    var t4headers = [
+      {label:"Paga",   key:"paga",   align:"left",  bold:true, color_fn:function(){return [220,38,38];}},
+      {label:"Recibe", key:"recibe", align:"left",  bold:true, color_fn:function(){return [22,163,74];}},
+      {label:"Monto",  key:"monto",  align:"right", bold:true, color_fn:function(){return [15,23,42];}}
+    ];
+    drawTable(t4headers, t4rows, 32);
   }
 
   // Footer on each page
@@ -1105,7 +1128,7 @@ document.getElementById("btn-share").addEventListener("click", function() {
     setTimeout(function(){
       document.body.removeChild(a);URL.revokeObjectURL(url);
       setTimeout(function(){
-        if(confirm("PDF descargado. ¿Abrir WhatsApp para compartirlo?"))
+        if(confirm("PDF descargado. Abrir WhatsApp para compartirlo?"))
           window.open("https://wa.me/","_blank");
       },600);
     },150);
