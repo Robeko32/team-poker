@@ -196,8 +196,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--f);font-size:14px;
 
 <div class="tw"><table>
   <thead><tr>
-    <th>Jugador</th><th>Asiste</th><th>Cajas ini.</th><th>Re-buys</th>
-    <th>Total</th><th>Buy-In</th><th>Posición</th><th>Premio</th><th>Resultado</th>
+    <th>Jugador</th><th>Asiste</th><th>Cajas</th>
+    <th>Buy-In</th><th>Posición</th><th>Premio</th><th>Resultado</th>
   </tr></thead>
   <tbody id="tbody"></tbody>
 </table></div>
@@ -523,17 +523,11 @@ function renderTable() {
         ' stroke-width="1.5" stroke-linecap="round"/><line x1="12" y1="4" x2="4" y2="12" stroke="var(--muted)"'+
         ' stroke-width="1.5" stroke-linecap="round"/></svg>';
 
-    var stepIni = p.asiste
+    // Single cajas stepper showing total (cajasIni + rebuys)
+    var stepCajas = p.asiste
       ? '<div class="stp">'
-        + '<button class="sb" data-action="ini-" data-i="'+i+'" '+(p.cajasIni<=1?'disabled':'')+'>−</button>'
-        + '<span class="sv2">'+p.cajasIni+'</span>'
-        + '<button class="sb" data-action="ini+" data-i="'+i+'">+</button>'
-        + '</div>' : "—";
-
-    var stepReb = p.asiste
-      ? '<div class="stp">'
-        + '<button class="sb" data-action="reb-" data-i="'+i+'" '+(p.rebuys<=0?'disabled':'')+'>−</button>'
-        + '<span class="sv2">'+p.rebuys+'</span>'
+        + '<button class="sb" data-action="reb-" data-i="'+i+'" '+(totalC<=1?'disabled':'')+'>−</button>'
+        + '<span class="sv2">'+totalC+'</span>'
         + '<button class="sb" data-action="reb+" data-i="'+i+'">+</button>'
         + '</div>' : "—";
 
@@ -558,9 +552,7 @@ function renderTable() {
     html += '<tr class="'+trCls+'" data-i="'+i+'">'
       + '<td><div class="pn">'+p.name+badge+'</div></td>'
       + '<td><button class="chk'+(p.asiste?' on':'')+'" data-action="chk" data-i="'+i+'">'+chkSvg+'</button></td>'
-      + '<td>'+stepIni+'</td>'
-      + '<td>'+stepReb+'</td>'
-      + '<td>'+(p.asiste?'<span style="font-family:var(--m)">'+totalC+'</span>':"—")+'</td>'
+      + '<td>'+stepCajas+'</td>'
       + '<td>'+(p.asiste?'<span class="bd">'+fmt(buyin)+'</span>':"—")+'</td>'
       + '<td>'+posEl+'</td>'
       + '<td>'+premioEl+'</td>'
@@ -603,10 +595,8 @@ document.getElementById("tbody").addEventListener("click", function(e) {
   if (action === "chk") {
     p.asiste = !p.asiste;
     if (!p.asiste) { p.cajasIni = 1; p.rebuys = 0; p.pos = 0; }
-  } else if (action === "ini-") { p.cajasIni = Math.max(1, p.cajasIni - 1); }
-  else if (action === "ini+")   { p.cajasIni++; }
-  else if (action === "reb-")   { p.rebuys = Math.max(0, p.rebuys - 1); }
-  else if (action === "reb+")   { p.rebuys++; }
+  } else if (action === "reb-") { p.rebuys = Math.max(0, p.rebuys - 1); }
+  else if (action === "reb+")  { p.rebuys++; }
 
   saveT();
   renderAll();
@@ -844,7 +834,7 @@ document.getElementById("btn-excel").addEventListener("click", function() {
     var r={}; r.Fecha=a?(isNaN(d.getTime())?T.fecha:d):null;
     r.Año=ano;r.Mes=mes;r["# Torneo"]=T.nro;r.Tipo=T.tipo==="addon"?"Add-On":"Corto";
     r.Jugador=p.name;r.Asistió=a?"Sí":"No";r.Host=isHost?"Sí":"No";
-    r["Cajas ini"]=a?p.cajasIni:0;r["Re-buys"]=a?p.rebuys:0;r["Total cajas"]=tc;
+    r["Cajas"]=tc;
     r["Buy-In ($)"]=bi;r.Posición=pos>0?pos:"";r["Premio ($)"]=pm;
     r["Comida ($)"]=cm;r["Resultado ($)"]=res;r["Res. juego ($)"]=a?pm-bi:0;
     return r;
