@@ -487,7 +487,7 @@ function renderSummary() {
   if(!prizeAlert){prizeAlert=document.createElement("div");prizeAlert.id="prize-alert";prizeAlert.style.cssText="display:none;background:#dc2626;color:#fff;font-weight:700;font-size:13px;padding:10px 16px;border-radius:8px;margin-bottom:12px;text-align:center";var pb=document.getElementById("pbar");if(pb)pb.parentNode.insertBefore(prizeAlert,pb);}
   var anyPos2=T.players.some(function(p){return p.pos>0;});
   var hasOv=T.players.some(function(p){return p.premioOverride>=0;});
-  if(anyPos2&&nJug>0&&pozo>0&&hasOv){var sumP=0;T.players.forEach(function(p){if(p.asiste&&p.pos>=1&&p.pos<=ng)sumP+=(p.premioOverride>=0)?p.premioOverride:(amounts[p.pos-1]||0);});if(Math.abs(sumP-pozo)>10){prizeAlert.style.display="block";prizeAlert.textContent="⚠ Los premios suman $"+Math.round(sumP).toLocaleString("es-CL")+" pero el pozo es $"+Math.round(pozo).toLocaleString("es-CL")+". Diferencia: $"+Math.round(Math.abs(sumP-pozo)).toLocaleString("es-CL");}else prizeAlert.style.display="none";}else if(prizeAlert)prizeAlert.style.display="none";
+  if(anyPos2&&c.active.length>0&&c.pozo>0&&hasOv){var sumP=0;T.players.forEach(function(p){if(p.asiste&&p.pos>=1&&p.pos<=pr.ng)sumP+=(p.premioOverride>=0)?p.premioOverride:(pr.amounts[p.pos-1]||0);});if(Math.abs(sumP-c.pozo)>10){prizeAlert.style.display="block";prizeAlert.textContent="⚠ Los premios suman $"+Math.round(sumP).toLocaleString("es-CL")+" pero el pozo es $"+Math.round(c.pozo).toLocaleString("es-CL")+". Diferencia: $"+Math.round(Math.abs(sumP-c.pozo)).toLocaleString("es-CL");}else prizeAlert.style.display="none";}else if(prizeAlert)prizeAlert.style.display="none";
 
   var bar = document.getElementById("pbar");
   if (!c.active.length || !c.pozo) {
