@@ -1026,31 +1026,34 @@ document.getElementById("btn-share").addEventListener("click", function() {
 
   var medals2 = ["1 ", "2 ", "3 "];
   var t1rows = t1.map(function(r, ri) {
-    var wi = ri; // already sorted descending
     var medal = ri<3 && r.rj>0 ? medals2[ri] : "";
+    var total = r.rj + r.comida;  // resultado + comida
     return {
-      jugador:  medal + r.name + (r.isHost ? " (host)" : ""),
-      cajas:    String(r.tc),
-      buyin:    fmtN(r.bi),
-      premio:   r.pm>0 ? fmtN(r.pm) : "—",
-      comida:   r.comida>0 ? "+"+fmtN(r.comida) : fmtN(r.comida),
+      jugador:   medal + r.name + (r.isHost ? " (host)" : ""),
+      cajas:     String(r.tc),
+      buyin:     fmtN(r.bi),
+      premio:    r.pm>0 ? fmtN(r.pm) : "—",
       resultado: fmtS2(r.rj),
-      _r: r
+      comida:    r.comida>0 ? "+"+fmtN(r.comida) : fmtN(r.comida),
+      total:     fmtS2(total),
+      _r: r, _total: total
     };
   });
 
   var t1headers = [
-    {label:"Jugador",   key:"jugador",   align:"left",
+    {label:"Jugador",    key:"jugador",   align:"left",
       color_fn: function(row){ return row._r.isHost?[37,99,235]:[15,23,42]; },
       bold_fn:  function(row){ return true; }},
-    {label:"Cajas",    key:"cajas",    align:"center", color_fn:function(){return [100,116,139];}},
-    {label:"Buy-In",   key:"buyin",    align:"right",  color_fn:function(){return [100,116,139];}},
-    {label:"Premio",   key:"premio",   align:"right",
+    {label:"Cajas",     key:"cajas",     align:"center", color_fn:function(){return [100,116,139];}},
+    {label:"Buy-In",    key:"buyin",     align:"right",  color_fn:function(){return [100,116,139];}},
+    {label:"Premio",    key:"premio",    align:"right",
       color_fn: function(row){ return row._r.pm>0?[180,83,9]:[100,116,139]; }, bold:true},
-    {label:"Comida",   key:"comida",   align:"right",
+    {label:"Resultado", key:"resultado", align:"right",
+      color_fn: function(row){ return row._r.rj>=0?[22,163,74]:[220,38,38]; }},
+    {label:"Comida",    key:"comida",    align:"right",
       color_fn: function(row){ return row._r.comida>0?[22,163,74]:[220,38,38]; }},
-    {label:"Resultado",key:"resultado",align:"right",
-      color_fn: function(row){ return row._r.rj>=0?[22,163,74]:[220,38,38]; }, bold:true}
+    {label:"Total",     key:"total",     align:"right",  bold:true,
+      color_fn: function(row){ return row._total>=0?[22,163,74]:[220,38,38]; }}
   ];
 
   drawTable(t1headers, t1rows, 32);
@@ -1149,12 +1152,9 @@ document.getElementById("btn-share").addEventListener("click", function() {
     var a=document.createElement("a");a.href=url;a.download=name;
     document.body.appendChild(a);a.click();
     setTimeout(function(){
-      document.body.removeChild(a);URL.revokeObjectURL(url);
-      setTimeout(function(){
-        if(confirm("PDF descargado. Abrir WhatsApp para compartirlo?"))
-          window.open("https://wa.me/","_blank");
-      },600);
-    },150);
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    },300);
   }
 });
 </script>
