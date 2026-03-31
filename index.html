@@ -769,17 +769,20 @@ document.getElementById("btn-reiniciar").addEventListener("click", function() {
 
 document.getElementById("btn-nuevo").addEventListener("click", function() {
   if (!T) return;
-  var active = T.players.filter(function(p){return p.asiste;});
-  if (active.length && T.host) {
-    if (confirm("¿Guardar este torneo en el historial antes de continuar?")) commitHistory();
-  }
+  if (!confirm("¿Iniciar nuevo torneo? Los datos del torneo actual se borrarán.")) return;
   var nro = T.nro+1, tipo = T.tipo;
   T = defT(); T.nro = nro; T.tipo = tipo;
   saveT(); renderAll();
 });
 
-// Track which torneo nro has already been committed to avoid double-counting
+// Track which torneo nro has already been committed — persisted in Firebase
 var _lastCommittedNro = -1;
+
+// Load persisted commit flag
+DB.ref("lastCommittedNro").on("value", function(snap) {
+  var val = snap.val();
+  if (val !== null) _lastCommittedNro = val;
+});
 
 function commitHistory() {
   if (!T || !T.players) return;
@@ -788,6 +791,7 @@ function commitHistory() {
   // Prevent committing the same torneo twice
   if (T.nro === _lastCommittedNro) return;
   _lastCommittedNro = T.nro;
+  DB.ref("lastCommittedNro").set(T.nro);
 
   var pr = calcPremios(c.pozo, c.active.length);
   c.active.forEach(function(p) {
@@ -864,10 +868,9 @@ document.getElementById("btn-share").addEventListener("click", function() {
   if (!T) { alert("Cargando datos..."); return; }
   if (typeof window.jspdf === "undefined") { alert("PDF aún no cargó, intenta de nuevo."); return; }
 
-  // Silently commit current torneo to history before generating PDF
-  // so PDF reflects up-to-date accumulated data WITHOUT clearing the torneo
-  var active = T.players.filter(function(p){return p.asiste;});
-  if (active.length && T.host) {
+  // Commit torneo to history (only once per torneo — flag stored in Firebase)
+  var active0 = T.players.filter(function(p){return p.asiste;});
+  if (active0.length && T.host) {
     commitHistory();
   }
 
