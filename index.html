@@ -385,7 +385,7 @@ function startListeners() {
       saveT();
     }
     setBadge("Sincronizado ✓", "ok");
-    if (currentUser) renderAll();
+    if (currentUser && H) renderAll();
   }, function(){ setBadge("Sin conexión", "err"); });
 
   DB.ref("historial").on("value", function(snap) {
@@ -399,7 +399,8 @@ function startListeners() {
       if (H[p].veces       === undefined) H[p].veces       = 0;
       if (H[p].torneos     === undefined) H[p].torneos     = 0;
     });
-    if (currentUser) { renderHostTable(); renderRankTable(); }
+    if (currentUser && T) renderAll();
+    else if (currentUser) { renderHostTable(); renderRankTable(); }
   });
 }
 
