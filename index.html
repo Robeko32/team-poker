@@ -212,7 +212,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--f);font-size:14px;
   <div style="padding:0"><table class="ht" id="rank-tbl"></table></div>
 </div>
 
-<div class="panel">
+  <div class="panel">
+    <div class="ph2"><h2>Ranking por puntos — acumulado del año</h2></div>
+    <div style="padding:0"><table class="ht" id="pts-tbl"></table></div>
+  </div>
+
+  <div class="panel">
   <div class="ph2"><h2>Rotación de host</h2></div>
   <div style="padding:0"><table class="ht" id="host-tbl"></table></div>
 </div>
@@ -292,7 +297,7 @@ function defT() {
 }
 function defH() {
   var h = {};
-  PLAYERS.forEach(function(p) { h[p] = {veces:0, torneos:0, res:0, prevVeces:0, prevTorneos:0}; });
+  PLAYERS.forEach(function(p) { h[p] = {veces:0, torneos:0, res:0, prevVeces:0, prevTorneos:0, pts:0}; });
   return h;
 }
 
@@ -398,6 +403,7 @@ function startListeners() {
       if (H[p].prevTorneos === undefined) H[p].prevTorneos = 0;
       if (H[p].veces       === undefined) H[p].veces       = 0;
       if (H[p].torneos     === undefined) H[p].torneos     = 0;
+      if (H[p].pts         === undefined) H[p].pts         = 0;
     });
     if (currentUser) renderAll();
   });
@@ -444,6 +450,7 @@ function renderAll() {
   renderTable();
   renderPayments();
   renderRankTable();
+  renderPtsTable();
   renderHostTable();
 }
 
@@ -474,6 +481,13 @@ function renderSummary() {
   document.getElementById("s-pozo").textContent  = c.pozo > 0 ? fmt(c.pozo) : "—";
   document.getElementById("s-gan").textContent   = pr.ng || "—";
   document.getElementById("s-host").textContent  = (T.host && c.active.length) ? fmt(cobroHost) : "—";
+
+  // Prize validation
+  var prizeAlert=document.getElementById("prize-alert");
+  if(!prizeAlert){prizeAlert=document.createElement("div");prizeAlert.id="prize-alert";prizeAlert.style.cssText="display:none;background:#dc2626;color:#fff;font-weight:700;font-size:13px;padding:10px 16px;border-radius:8px;margin-bottom:12px;text-align:center";var pb=document.getElementById("pbar");if(pb)pb.parentNode.insertBefore(prizeAlert,pb);}
+  var anyPos2=T.players.some(function(p){return p.pos>0;});
+  var hasOv=T.players.some(function(p){return p.premioOverride>=0;});
+  if(anyPos2&&nJug>0&&pozo>0&&hasOv){var sumP=0;T.players.forEach(function(p){if(p.asiste&&p.pos>=1&&p.pos<=ng)sumP+=(p.premioOverride>=0)?p.premioOverride:(amounts[p.pos-1]||0);});if(Math.abs(sumP-pozo)>10){prizeAlert.style.display="block";prizeAlert.textContent="⚠ Los premios suman $"+Math.round(sumP).toLocaleString("es-CL")+" pero el pozo es $"+Math.round(pozo).toLocaleString("es-CL")+". Diferencia: $"+Math.round(Math.abs(sumP-pozo)).toLocaleString("es-CL");}else prizeAlert.style.display="none";}else if(prizeAlert)prizeAlert.style.display="none";
 
   var bar = document.getElementById("pbar");
   if (!c.active.length || !c.pozo) {
@@ -698,6 +712,27 @@ function renderRankTable() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// POINTS TABLE
+// ─────────────────────────────────────────────────────────────────────────────
+function renderPtsTable() {
+  var tbl=document.getElementById("pts-tbl");
+  if(!tbl||!H) return;
+  var rows=PLAYERS.map(function(name){
+    var h=H[name]||{torneos:0,pts:0};
+    return {name:name,torneos:h.torneos||0,pts:parseInt(h.pts)||0};
+  }).sort(function(a,b){return b.pts-a.pts;});
+  var html='<thead><tr><th>#</th><th>Jugador</th><th>Torneos</th><th>Puntos</th></tr></thead><tbody>';
+  rows.forEach(function(r,i){
+    html+='<tr>'
+      +'<td style="text-align:center">'+(i+1)+'</td>'
+      +'<td style="font-weight:500">'+r.name+'</td>'
+      +'<td style="font-family:var(--m);text-align:center;color:var(--muted)">'+r.torneos+'</td>'
+      +'<td style="text-align:right"><span class="'+(r.pts>0?"rp":"rz")+'" style="font-family:var(--m);font-weight:500">'+r.pts+'</span></td>'
+      +'</tr>';
+  });
+  tbl.innerHTML=html+'</tbody>';
+}
+
 // HOST TABLE
 // ─────────────────────────────────────────────────────────────────────────────
 function renderHostTable() {
@@ -795,6 +830,7 @@ function commitHistory() {
     var pmBase = isW ? pr.amounts[p.pos-1] : 0;
     var premio = (p.premioOverride >= 0) ? p.premioOverride : pmBase;
     H[p.name].res = currentRes + (premio - buyin);
+    if (isW) H[p.name].pts = (parseInt(H[p.name].pts)||0) + (pr.ng - p.pos + 1);
   });
   saveH();
 }
@@ -1091,6 +1127,11 @@ document.getElementById("btn-share").addEventListener("click", function() {
   drawTable(t3headers, t3rows, 32);
 
   // ── PÁGINA 4: Liquidación ────────────────────────────────────────────────
+    doc.addPage();
+  pageHeader("RANKING POR PUNTOS");
+  var tPts=PLAYERS.map(function(name){var h=H[name]||{torneos:0,pts:0};return{name:name,t:h.torneos||0,pts:parseInt(h.pts)||0};}).sort(function(a,b){return b.pts-a.pts;}).map(function(r,i){return{pos:String(i+1)+".",jugador:r.name,torneos:String(r.t),puntos:String(r.pts),_pts:r.pts};});
+  drawTable([{label:"#",key:"pos",align:"center",color_fn:function(){return[100,116,139];}},{label:"Jugador",key:"jugador",align:"left",bold:true,color_fn:function(){return[15,23,42];}},{label:"Torneos",key:"torneos",align:"center",color_fn:function(){return[100,116,139];}},{label:"Puntos",key:"puntos",align:"right",bold:true,color_fn:function(r){return r._pts>0?[22,163,74]:[100,116,139];}}],tPts,32);
+
   doc.addPage();
   pageHeader("LIQUIDACION");
 
