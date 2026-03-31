@@ -1024,7 +1024,7 @@ document.getElementById("btn-share").addEventListener("click", function() {
   // ── PÁGINA 1: Resultado del torneo ───────────────────────────────────────
   pageHeader("RESULTADO DEL TORNEO");
 
-  var medals2 = ["1 ", "2 ", "3 "];
+  var medals2 = ["1. ", "2. ", "3. "];
   var t1rows = t1.map(function(r, ri) {
     var medal = ri<3 && r.rj>0 ? medals2[ri] : "";
     var total = r.rj + r.comida;  // resultado + comida
@@ -1062,10 +1062,10 @@ document.getElementById("btn-share").addEventListener("click", function() {
   doc.addPage();
   pageHeader("RANKING ACUMULADO DEL AÑO");
 
-  var medals3 = ["1 ","2 ","3 "];
+  var medals3 = ["1.","2.","3."];
   var t2rows = t2.map(function(r,ri){
     return {
-      pos:      ri<3 ? medals3[ri]+(ri+1)+"." : String(ri+1)+".",
+      pos:      String(ri+1)+".",
       jugador:  r.name,
       torneos:  String(r.t),
       resultado: fmtS2(r.res),
@@ -1138,7 +1138,9 @@ document.getElementById("btn-share").addEventListener("click", function() {
   var pdfBlob = doc.output("blob");
   var pdfUrl  = URL.createObjectURL(pdfBlob);
 
-  if(navigator.share && navigator.canShare && navigator.canShare({files:[new File([pdfBlob],fname,{type:"application/pdf"})]})){
+  // Only use Web Share API on mobile (touch devices) — desktop share causes double send
+  var isMobile = navigator.maxTouchPoints > 0;
+  if(isMobile && navigator.share && navigator.canShare && navigator.canShare({files:[new File([pdfBlob],fname,{type:"application/pdf"})]})){
     navigator.share({
       title:"Club de Poker · Torneo #"+T.nro,
       text:"Resumen del torneo",
