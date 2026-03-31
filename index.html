@@ -160,7 +160,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--f);font-size:14px;
     </div>
   </div>
   <div class="hdr-right">
-    <span class="sync ok" id="sync-badge">Sincronizado ✓</span>
+    <span class="sync" id="sync-badge">Conectando...</span>
     <span id="user-email" style="font-size:11px;color:var(--muted);font-family:var(--m)"></span>
     <button class="btn" id="btn-logout" style="font-size:11px;height:26px;padding:0 8px">Salir</button>
     <button class="btn wa" id="btn-share">📸 Compartir resumen</button>
@@ -268,9 +268,7 @@ var AUTH = firebase.auth();
 // Authorized emails — only these can access the app
 var AUTHORIZED = [
   "robkolton@gmail.com",
-  "arigrossman2011@gmail.com",
   "jaime.camhi@gmail.com",
-  "hirnheimer@gmail.com",
   "roberto.camhi@gmail.com"
 ];
 
@@ -308,6 +306,7 @@ function showLogin() {
 function showApp() {
   document.getElementById("login-screen").style.display = "none";
   document.querySelector(".app").style.display = "block";
+  startListeners();
   if (T && H) renderAll();
 }
 
@@ -362,44 +361,47 @@ function saveH() {
 }
 
 // Listen for changes from OTHER devices only
-DB.ref("torneo").on("value", function(snap) {
-  if (saving) return;
-  var val = snap.val();
-  if (val && val.players) {
-    T = val;
-    // Fill missing fields
-    T.players.forEach(function(p) {
-      if (p.cajasIni === undefined) p.cajasIni = 1;
-      if (p.rebuys   === undefined) p.rebuys   = 0;
-      if (p.pos      === undefined) p.pos      = 0;
-      if (p.asiste   === undefined) p.asiste   = true;
-      if (p.premioOverride === undefined) p.premioOverride = -1;
+// DB listeners start only after auth — called from showApp()
+var _listenersStarted = false;
+
+function startListeners() {
+  if (_listenersStarted) return;
+  _listenersStarted = true;
+
+  DB.ref("torneo").on("value", function(snap) {
+    if (saving) return;
+    var val = snap.val();
+    if (val && val.players) {
+      T = val;
+      T.players.forEach(function(p) {
+        if (p.cajasIni === undefined) p.cajasIni = 1;
+        if (p.rebuys   === undefined) p.rebuys   = 0;
+        if (p.pos      === undefined) p.pos      = 0;
+        if (p.asiste   === undefined) p.asiste   = true;
+        if (p.premioOverride === undefined) p.premioOverride = -1;
+      });
+    } else {
+      T = defT();
+      saveT();
+    }
+    setBadge("Sincronizado ✓", "ok");
+    if (currentUser) renderAll();
+  }, function(){ setBadge("Sin conexión", "err"); });
+
+  DB.ref("historial").on("value", function(snap) {
+    var val = snap.val();
+    H = val || defH();
+    PLAYERS.forEach(function(p) {
+      if (!H[p]) H[p] = {veces:0, torneos:0, res:0, prevVeces:0, prevTorneos:0};
+      if (H[p].res         === undefined) H[p].res         = 0;
+      if (H[p].prevVeces   === undefined) H[p].prevVeces   = 0;
+      if (H[p].prevTorneos === undefined) H[p].prevTorneos = 0;
+      if (H[p].veces       === undefined) H[p].veces       = 0;
+      if (H[p].torneos     === undefined) H[p].torneos     = 0;
     });
-  } else {
-    T = defT();
-    saveT();
-  }
-  setBadge("Sincronizado ✓", "ok");
-  if (currentUser) renderAll();
-});
-
-DB.ref("historial").on("value", function(snap) {
-  var val = snap.val();
-  H = val || defH();
-  PLAYERS.forEach(function(p) {
-    if (!H[p]) H[p] = {veces:0, torneos:0, res:0, prevVeces:0, prevTorneos:0};
-    if (H[p].res         === undefined) H[p].res         = 0;
-    if (H[p].prevVeces   === undefined) H[p].prevVeces   = 0;
-    if (H[p].prevTorneos === undefined) H[p].prevTorneos = 0;
-    if (H[p].veces       === undefined) H[p].veces       = 0;
-    if (H[p].torneos     === undefined) H[p].torneos     = 0;
+    if (currentUser) { renderHostTable(); renderRankTable(); }
   });
-  if (currentUser) { renderHostTable(); renderRankTable(); }
-});
-
-DB.ref().on("value", function() {}, function() {
-  setBadge("Sin conexión", "err");
-});
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // HELPERS
@@ -540,13 +542,13 @@ function renderTable() {
       posOpts += '<option value="'+(k+1)+'"'+(p.pos===k+1?' selected':'')+'>'+(k+1)+'°</option>';
     }
     var posEl = p.asiste
-      ? '<select class="ps'+(p.pos>0?' sel':'')+'" data-action="pos" data-i="'+i+'">'+posOpts+'</select>'
+      ? '<select class="ps'+(p.pos>0?' sel':'')+'" data-action="pos" data-i="'+i+'" onchange="handlePos(this)">'+posOpts+'</select>'
       : "—";
 
     var premioEdited = p.asiste && p.premioOverride >= 0 && p.premioOverride !== premioBase;
     var premioInputVal = p.asiste ? (premioEdited ? p.premioOverride : premioBase) : 0;
     var premioEl = p.asiste
-      ? '<input type="text" inputmode="numeric" class="premio-inp'+(premioEdited?' edited':'')+'" data-action="premio" data-i="'+i+'" value="'+premioInputVal+'" placeholder="auto">'
+      ? '<input type="text" inputmode="numeric" class="premio-inp'+(premioEdited?' edited':'')+'" data-action="premio" data-i="'+i+'" value="'+premioInputVal+'" placeholder="auto" onchange="handlePremio(this)">'
       : '—';
 
     var resEl = p.asiste
@@ -572,6 +574,24 @@ function renderTable() {
 // ─────────────────────────────────────────────────────────────────────────────
 // EVENT DELEGATION — single listener on tbody, no closures per button
 // ─────────────────────────────────────────────────────────────────────────────
+// Global handlers for iOS compatibility (inline onchange)
+function handlePos(el) {
+  if (!T) return;
+  var i = parseInt(el.getAttribute("data-i"));
+  T.players[i].pos = parseInt(el.value) || 0;
+  T.players[i].premioOverride = -1;
+  saveT();
+  renderAll();
+}
+function handlePremio(el) {
+  if (!T) return;
+  var i = parseInt(el.getAttribute("data-i"));
+  var raw = parseInt(el.value);
+  T.players[i].premioOverride = (isNaN(raw) || raw < 0) ? -1 : raw;
+  saveT();
+  renderAll();
+}
+
 document.getElementById("tbody").addEventListener("click", function(e) {
   var el = e.target.closest("[data-action]");
   if (!el || !T) return;
