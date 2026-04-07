@@ -1084,7 +1084,6 @@ document.getElementById("btn-share").addEventListener("click", function() {
   }, colAligns);
   var sumW = cols.reduce(function(s,c){return s+c.w;},0);
   if(sumW > CW){ var sc=CW/sumW; cols.forEach(function(c){c.w*=sc;}); sumW=CW; }
-  cols[cols.length-1].w += CW - sumW;
 
   var RH = 7, y = 23;
 
@@ -1185,7 +1184,6 @@ document.getElementById("btn-share").addEventListener("click", function() {
     );
     var sw = fitCols.reduce(function(s,c){return s+c.w;},0);
     if(sw > CW){ var sc2=CW/sw; fitCols.forEach(function(c){c.w*=sc2;}); sw=CW; }
-    fitCols[fitCols.length-1].w += CW - sw;
     y=23; cx=M;
     fitCols.forEach(function(col){ cell(col.h,cx,y,col.w,RH,HDR_BG,BLUE_H,true,"center"); cx+=col.w; });
     y+=RH;
