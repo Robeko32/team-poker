@@ -1172,148 +1172,119 @@ document.getElementById("btn-share").addEventListener("click", function() {
     y+=6;
   }
 
-  // ── PAGE 2: Ranking acumulado ────────────────────────────────────────────
-  doc.addPage();
-  pageHeader("RANKING ACUMULADO DEL AÑO");
-
-  var rCols = [
-    {h:"#",         w:10, a:"center"},
-    {h:"Jugador",   w:40, a:"left"},
-    {h:"Torneos",   w:22, a:"center"},
-    {h:"Acumulado", w:35, a:"right"},
-    {h:"Promedio",  w:35, a:"right"},
-    {h:"Host",      w:20, a:"center"},
-  ];
-  sumW=rCols.reduce(function(s,c){return s+c.w;},0);
-  rCols[rCols.length-1].w+=CW-sumW;
-
-  y=23; cx=M;
-  rCols.forEach(function(col){
-    cell(col.h,cx,y,col.w,RH,HDR_BG,BLUE_H,true,"center"); cx+=col.w;
-  });
-  y+=RH;
-
-  var t2sorted = t2.slice().sort(function(a,b){return b.res-a.res;});
-  t2sorted.forEach(function(r,ri){
-    var bg=ri%2===0?WHITE:ALT_BG;
-    var resColor=r.res>0?GREEN:r.res<0?RED:BLACK;
-    var prom=r.t>0?r.res/r.t:0;
-    var h=H[r.name]||{veces:0};
-    cx=M;
-    cell(String(ri+1)+".", cx,y,rCols[0].w,RH,bg,BLACK,false,"center"); cx+=rCols[0].w;
-    cell(r.name, cx,y,rCols[1].w,RH,bg,BLACK,ri===0,  "left");   cx+=rCols[1].w;
-    cell(r.t,    cx,y,rCols[2].w,RH,bg,BLACK,false,"center"); cx+=rCols[2].w;
-    cell(fmtS2(r.res), cx,y,rCols[3].w,RH,bg,resColor,true,"right"); cx+=rCols[3].w;
-    cell(fmtS2(Math.round(prom)), cx,y,rCols[4].w,RH,bg,resColor,false,"right"); cx+=rCols[4].w;
-    cell(h.veces||0, cx,y,rCols[5].w,RH,bg,BLACK,false,"center");
+  // ── Shared drawPage helper ───────────────────────────────────────────────
+  function drawPage(title, colDefs, rows, drawRow) {
+    doc.addPage();
+    pageHeader(title);
+    // Auto-fit columns
+    var fitCols = autoFitCols(
+      colDefs.map(function(c){return c.h;}),
+      rows,
+      function(r,hi){ return colDefs[hi].val ? colDefs[hi].val(r) : ""; },
+      colDefs.map(function(c){return c.a;})
+    );
+    var sw = fitCols.reduce(function(s,c){return s+c.w;},0);
+    if(sw > CW){ var sc2=CW/sw; fitCols.forEach(function(c){c.w*=sc2;}); sw=CW; }
+    fitCols[fitCols.length-1].w += CW - sw;
+    y=23; cx=M;
+    fitCols.forEach(function(col){ cell(col.h,cx,y,col.w,RH,HDR_BG,BLUE_H,true,"center"); cx+=col.w; });
     y+=RH;
+    rows.forEach(function(r,ri){
+      cx=M;
+      drawRow(r,ri,fitCols);
+      y+=RH;
+    });
+  }
+
+  // ── PAGE 2: Ranking acumulado ─────────────────────────────────────────────
+  var t2sorted = t2.slice().sort(function(a,b){return b.res-a.res;});
+  drawPage("RANKING ACUMULADO DEL AÑO", [
+    {h:"#",       a:"center", val:function(r,_,i){ return String(t2sorted.indexOf(r)+1)+"."; }},
+    {h:"Jugador", a:"left",   val:function(r){ return r.name; }},
+    {h:"Torneos", a:"center", val:function(r){ return r.t; }},
+    {h:"Acumulado",a:"right", val:function(r){ return fmtS2(r.res); }},
+    {h:"Promedio", a:"right", val:function(r){ return fmtS2(Math.round(r.t>0?r.res/r.t:0)); }},
+    {h:"Host",    a:"center", val:function(r){ return (H[r.name]||{veces:0}).veces||0; }}
+  ], t2sorted, function(r,ri,fc){
+    var bg=ri%2===0?WHITE:ALT_BG;
+    var rc=r.res>0?GREEN:r.res<0?RED:BLACK;
+    var prom=r.t>0?r.res/r.t:0;
+    cell(String(ri+1)+".",cx,y,fc[0].w,RH,bg,BLACK,false,"center"); cx+=fc[0].w;
+    cell(r.name,cx,y,fc[1].w,RH,bg,BLACK,ri===0,"left"); cx+=fc[1].w;
+    cell(r.t,cx,y,fc[2].w,RH,bg,BLACK,false,"center"); cx+=fc[2].w;
+    cell(fmtS2(r.res),cx,y,fc[3].w,RH,bg,rc,true,"right"); cx+=fc[3].w;
+    cell(fmtS2(Math.round(prom)),cx,y,fc[4].w,RH,bg,rc,false,"right"); cx+=fc[4].w;
+    cell((H[r.name]||{veces:0}).veces||0,cx,y,fc[5].w,RH,bg,BLACK,false,"center");
   });
 
   // ── PAGE 3: Liquidación ───────────────────────────────────────────────────
   doc.addPage();
   pageHeader("LIQUIDACION — QUIEN PAGA A QUIEN");
-
-  var lCols=[
-    {h:"Paga",w:55,a:"left"},{h:"",w:20,a:"center"},
-    {h:"Recibe",w:55,a:"left"},{h:"Monto",w:64,a:"right"}
-  ];
-  sumW=lCols.reduce(function(s,c){return s+c.w;},0);
-  lCols[lCols.length-1].w+=CW-sumW;
-
-  y=23; cx=M;
-  lCols.forEach(function(col){
-    if(col.h) cell(col.h,cx,y,col.w,RH,HDR_BG,BLUE_H,true,"center");
-    else { setFill(HDR_BG[0],HDR_BG[1],HDR_BG[2]); doc.rect(cx,y,col.w,RH,"F"); doc.setDrawColor(150,150,150); doc.rect(cx,y,col.w,RH,"S"); }
-    cx+=col.w;
-  });
-  y+=RH;
-
   if(!pagos.length){
+    y=23;
     setFill(WHITE[0],WHITE[1],WHITE[2]); doc.rect(M,y,CW,RH,"F");
     doc.setDrawColor(180,180,180); doc.rect(M,y,CW,RH,"S");
     setTxt(0,128,0); setFnt(8.5,true);
     doc.text("Todo cuadra - no hay pagos pendientes",M+CW/2,y+RH/2,{align:"center",baseline:"middle"});
   } else {
-    pagos.forEach(function(pg,ri){
+    var lDefs=[
+      {h:"Paga",   a:"left",   val:function(r){return r.de;}},
+      {h:"->",     a:"center", val:function(){return "";}},
+      {h:"Recibe", a:"left",   val:function(r){return r.a;}},
+      {h:"Monto",  a:"right",  val:function(r){return fmtN(r.monto);}}
+    ];
+    drawPage("LIQUIDACION — QUIEN PAGA A QUIEN", lDefs, pagos, function(r,ri,fc){
       var bg=ri%2===0?WHITE:ALT_BG;
-      cx=M;
-      cell(pg.de,cx,y,lCols[0].w,RH,bg,[192,0,0],true,"left"); cx+=lCols[0].w;
-      cell("->",cx,y,lCols[1].w,RH,bg,[100,100,100],false,"center"); cx+=lCols[1].w;
-      cell(pg.a,cx,y,lCols[2].w,RH,bg,[0,112,0],true,"left"); cx+=lCols[2].w;
-      cell(fmtN(pg.monto),cx,y,lCols[3].w,RH,bg,BLACK,true,"right");
-      y+=RH;
+      cell(r.de,cx,y,fc[0].w,RH,bg,[192,0,0],true,"left"); cx+=fc[0].w;
+      cell("->",cx,y,fc[1].w,RH,bg,[100,100,100],false,"center"); cx+=fc[1].w;
+      cell(r.a,cx,y,fc[2].w,RH,bg,[0,112,0],true,"left"); cx+=fc[2].w;
+      cell(fmtN(r.monto),cx,y,fc[3].w,RH,bg,BLACK,true,"right");
     });
+    // Remove the extra page added by drawPage since we already added one
   }
 
   // ── PAGE 4: Ranking por puntos ────────────────────────────────────────────
-  doc.addPage();
-  pageHeader("RANKING POR PUNTOS");
-
-  var pCols=[
-    {h:"#",w:10,a:"center"},{h:"Jugador",w:50,a:"left"},
-    {h:"Torneos",w:25,a:"center"},{h:"Puntos",w:30,a:"center"}
-  ];
-  sumW=pCols.reduce(function(s,c){return s+c.w;},0);
-  pCols[pCols.length-1].w+=CW-sumW;
-
-  y=23; cx=M;
-  pCols.forEach(function(col){
-    cell(col.h,cx,y,col.w,RH,HDR_BG,BLUE_H,true,"center"); cx+=col.w;
-  });
-  y+=RH;
-
   var tPtsSorted=PLAYERS.map(function(name){
     var h=H[name]||{torneos:0,pts:0};
     return {name:name,t:h.torneos||0,pts:parseInt(h.pts)||0};
   }).sort(function(a,b){return b.pts-a.pts;});
-
-  tPtsSorted.forEach(function(r,ri){
+  drawPage("RANKING POR PUNTOS", [
+    {h:"#",      a:"center", val:function(r){ return String(tPtsSorted.indexOf(r)+1)+"."; }},
+    {h:"Jugador",a:"left",   val:function(r){ return r.name; }},
+    {h:"Torneos",a:"center", val:function(r){ return r.t; }},
+    {h:"Puntos", a:"center", val:function(r){ return r.pts; }}
+  ], tPtsSorted, function(r,ri,fc){
     var bg=ri%2===0?WHITE:ALT_BG;
-    cx=M;
-    cell(String(ri+1)+".",cx,y,pCols[0].w,RH,bg,BLACK,false,"center"); cx+=pCols[0].w;
-    cell(r.name,cx,y,pCols[1].w,RH,bg,BLACK,ri===0,"left"); cx+=pCols[1].w;
-    cell(r.t,cx,y,pCols[2].w,RH,bg,BLACK,false,"center"); cx+=pCols[2].w;
-    cell(r.pts,cx,y,pCols[3].w,RH,bg,r.pts>0?GREEN:BLACK,r.pts>0,"center");
-    y+=RH;
+    cell(String(ri+1)+".",cx,y,fc[0].w,RH,bg,BLACK,false,"center"); cx+=fc[0].w;
+    cell(r.name,cx,y,fc[1].w,RH,bg,BLACK,ri===0,"left"); cx+=fc[1].w;
+    cell(r.t,cx,y,fc[2].w,RH,bg,BLACK,false,"center"); cx+=fc[2].w;
+    cell(r.pts,cx,y,fc[3].w,RH,bg,r.pts>0?GREEN:BLACK,r.pts>0,"center");
   });
 
   // ── PAGE 5: Próximos host ─────────────────────────────────────────────────
-  doc.addPage();
-  pageHeader("PROXIMOS HOST");
-
-  var hCols=[
-    {h:"#",w:10,a:"center"},{h:"Jugador",w:50,a:"left"},
-    {h:"Host año ant.",w:28,a:"center"},{h:"Asist. año ant.",w:28,a:"center"},
-    {h:"Host año",w:22,a:"center"},{h:"Torneos",w:22,a:"center"},
-    {h:"% Combinado",w:34,a:"center"}
-  ];
-  sumW=hCols.reduce(function(s,c){return s+c.w;},0);
-  hCols[hCols.length-1].w+=CW-sumW;
-
-  y=23; cx=M;
-  hCols.forEach(function(col){
-    cell(col.h,cx,y,col.w,RH,HDR_BG,BLUE_H,true,"center"); cx+=col.w;
-  });
-  y+=RH;
-
   var hRows=PLAYERS.map(function(name){
     var h=H[name]||{veces:0,torneos:0,prevVeces:0,prevTorneos:0};
     return {name:name,pV:parseInt(h.prevVeces)||0,pT:parseInt(h.prevTorneos)||0,
             v:h.veces||0,t:h.torneos||0,ratio:combRatio(h)};
   }).sort(function(a,b){return a.ratio-b.ratio;});
-
-  hRows.forEach(function(r,ri){
+  drawPage("PROXIMOS HOST", [
+    {h:"#",              a:"center", val:function(r){ return String(hRows.indexOf(r)+1)+"."; }},
+    {h:"Jugador",        a:"left",   val:function(r){ return r.name+(hRows.indexOf(r)===0?" <-":""); }},
+    {h:"Host año ant.",  a:"center", val:function(r){ return r.pV; }},
+    {h:"Asist. año ant.",a:"center", val:function(r){ return r.pT; }},
+    {h:"Host año",       a:"center", val:function(r){ return r.v; }},
+    {h:"Torneos",        a:"center", val:function(r){ return r.t; }},
+    {h:"% Combinado",    a:"center", val:function(r){ return fmtPct(r.ratio); }}
+  ], hRows, function(r,ri,fc){
     var bg=ri%2===0?WHITE:ALT_BG;
     var isNext=ri===0;
-    cx=M;
-    cell(String(ri+1)+".",cx,y,hCols[0].w,RH,bg,BLACK,false,"center"); cx+=hCols[0].w;
-    cell(r.name+(isNext?" <-":""),cx,y,hCols[1].w,RH,bg,isNext?[0,70,127]:BLACK,isNext,"left"); cx+=hCols[1].w;
-    cell(r.pV,cx,y,hCols[2].w,RH,bg,BLACK,false,"center"); cx+=hCols[2].w;
-    cell(r.pT,cx,y,hCols[3].w,RH,bg,BLACK,false,"center"); cx+=hCols[3].w;
-    cell(r.v,cx,y,hCols[4].w,RH,bg,BLACK,false,"center"); cx+=hCols[4].w;
-    cell(r.t,cx,y,hCols[5].w,RH,bg,BLACK,false,"center"); cx+=hCols[5].w;
-    cell(fmtPct(r.ratio),cx,y,hCols[6].w,RH,bg,BLACK,false,"center");
-    y+=RH;
+    cell(String(ri+1)+".",cx,y,fc[0].w,RH,bg,BLACK,false,"center"); cx+=fc[0].w;
+    cell(r.name+(isNext?" <-":""),cx,y,fc[1].w,RH,bg,isNext?[0,70,127]:BLACK,isNext,"left"); cx+=fc[1].w;
+    cell(r.pV,cx,y,fc[2].w,RH,bg,BLACK,false,"center"); cx+=fc[2].w;
+    cell(r.pT,cx,y,fc[3].w,RH,bg,BLACK,false,"center"); cx+=fc[3].w;
+    cell(r.v,cx,y,fc[4].w,RH,bg,BLACK,false,"center"); cx+=fc[4].w;
+    cell(r.t,cx,y,fc[5].w,RH,bg,BLACK,false,"center"); cx+=fc[5].w;
+    cell(fmtPct(r.ratio),cx,y,fc[6].w,RH,bg,BLACK,false,"center");
   });
 
   // Footer all pages
