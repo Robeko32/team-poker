@@ -605,6 +605,15 @@ function handlePos(el) {
 }
 function setPosBtn(i, pos) {
   if (!T) return;
+  // Clear any other player that has the same position
+  if (pos > 0) {
+    T.players.forEach(function(p, j) {
+      if (j !== i && p.pos === pos) {
+        p.pos = 0;
+        p.premioOverride = -1;
+      }
+    });
+  }
   T.players[i].pos = pos;
   T.players[i].premioOverride = -1;
   saveT();
@@ -960,7 +969,7 @@ document.getElementById("btn-share").addEventListener("click", function() {
     var pmBase=isW?pr.amounts[p.pos-1]:0;
     var pm=(p.premioOverride>=0)?p.premioOverride:pmBase;
     var rj=a?pm-bi:0;
-    return {name:name,a:a,tc:tc,bi:bi,pm:pm,rj:rj,isHost:isHost,
+    return {name:name,a:a,tc:tc,bi:bi,pm:pm,rj:rj,isHost:isHost,pos:p.pos||0,
             comida:a?(isHost?cobroHost:-8000):0};
   }).filter(function(r){return r.a;}).sort(function(a,b){return b.rj-a.rj;});
 
@@ -1041,20 +1050,38 @@ document.getElementById("btn-share").addEventListener("click", function() {
   // ── PAGE 1: Resultado del torneo ──────────────────────────────────────────
   pageHeader("RESULTADO DEL TORNEO");
 
-  // Column definitions — widths in mm, must sum to CW (194mm)
-  var cols = [
-    {h:"Jugador",    w:32, a:"left"},
-    {h:"Cajas",      w:14, a:"center"},
-    {h:"Buy-In",     w:22, a:"right"},
-    {h:"Posición",   w:16, a:"center"},
-    {h:"Premio",     w:22, a:"right"},
-    {h:"Puntos",     w:14, a:"center"},
-    {h:"Resultado",  w:22, a:"right"},
-    {h:"Comida",     w:22, a:"right"},
-    {h:"Total",      w:24, a:"right"},
-  ];
-  // Adjust last col to fill exactly
+  // Auto-fit column widths to content
+  function autoFitCols(headers, rows, getVal, aligns) {
+    setFnt(8.5, false);
+    return headers.map(function(h, hi) {
+      var maxW = doc.getTextWidth(h) + 4;
+      rows.forEach(function(r){
+        var v = String(getVal(r,hi)||"");
+        var w = doc.getTextWidth(v) + 4;
+        if(w > maxW) maxW = w;
+      });
+      return {h:h, w:maxW, a:aligns[hi]};
+    });
+  }
+
+  var colNames = ["Jugador","Cajas","Buy-In","Pos.","Premio","Pts","Resultado","Comida","Total"];
+  var colAligns = ["left","center","right","center","right","center","right","right","right"];
+  var cols = autoFitCols(colNames, t1sorted, function(r,hi){
+    switch(hi){
+      case 0: return r.name+(r.isHost?" (H)":"");
+      case 1: return r.tc;
+      case 2: return fmtN(r.bi);
+      case 3: return r.pos>0?(r.pos+"°"):"—";
+      case 4: return r.pm>0?fmtN(r.pm):"—";
+      case 5: var winners=t1sorted.filter(function(x){return x.pm>0;}); var rank=winners.indexOf(r); return (rank>=0&&r.pm>0)?(pr.ng-rank):"—";
+      case 6: return fmtS2(r.rj);
+      case 7: return r.isHost?("+"+fmtN(r.comida)):"-$8.000";
+      case 8: return fmtS2(r.rj+r.comida);
+    }
+  }, colAligns);
+  // Scale to fit CW
   var sumW = cols.reduce(function(s,c){return s+c.w;},0);
+  if(sumW > CW){ var sc=CW/sumW; cols.forEach(function(c){c.w*=sc;}); sumW=CW; }
   cols[cols.length-1].w += CW - sumW;
 
   var RH = 7, y = 23;
@@ -1084,7 +1111,7 @@ document.getElementById("btn-share").addEventListener("click", function() {
     var totColor = total>0?GREEN:total<0?RED:BLACK;
     cx = M;
     // Jugador
-    cell(r.name+(isHost?" ★":""), cx, y, cols[0].w, RH, bg, isHost?[0,70,127]:BLACK, isHost, "left"); cx+=cols[0].w;
+    cell(r.name+(isHost?" (H)":""), cx, y, cols[0].w, RH, bg, isHost?[0,70,127]:BLACK, isHost, "left"); cx+=cols[0].w;
     // Cajas
     cell(r.tc, cx, y, cols[1].w, RH, bg, BLACK, false, "center"); cx+=cols[1].w;
     // Buy-In
