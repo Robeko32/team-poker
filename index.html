@@ -1064,25 +1064,7 @@ document.getElementById("btn-share").addEventListener("click", function() {
     });
   }
 
-  var colNames = ["Jugador","Cajas","Buy-In","Pos.","Premio","Pts","Resultado","Comida","Total"];
-  var colAligns = ["left","center","right","center","right","center","right","right","right"];
-  var cols = autoFitCols(colNames, t1sorted, function(r,hi){
-    switch(hi){
-      case 0: return r.name+(r.isHost?" (H)":"");
-      case 1: return r.tc;
-      case 2: return fmtN(r.bi);
-      case 3: return r.pos>0?(r.pos+"°"):"—";
-      case 4: return r.pm>0?fmtN(r.pm):"—";
-      case 5: var winners=t1sorted.filter(function(x){return x.pm>0;}); var rank=winners.indexOf(r); return (rank>=0&&r.pm>0)?(pr.ng-rank):"—";
-      case 6: return fmtS2(r.rj);
-      case 7: return r.isHost?("+"+fmtN(r.comida)):"-$8.000";
-      case 8: return fmtS2(r.rj+r.comida);
-    }
-  }, colAligns);
-  // Scale to fit CW
-  var sumW = cols.reduce(function(s,c){return s+c.w;},0);
-  if(sumW > CW){ var sc=CW/sumW; cols.forEach(function(c){c.w*=sc;}); sumW=CW; }
-  cols[cols.length-1].w += CW - sumW;
+  // cols defined after t1sorted below
 
   var RH = 7, y = 23;
 
@@ -1096,6 +1078,26 @@ document.getElementById("btn-share").addEventListener("click", function() {
 
   // Data rows
   var t1sorted = t1; // already sorted desc by rj
+
+  var colNames = ["Jugador","Cajas","Buy-In","Pos.","Premio","Pts","Resultado","Comida","Total"];
+  var colAligns = ["left","center","right","center","right","center","right","right","right"];
+  var cols = autoFitCols(colNames, t1sorted, function(r,hi){
+    switch(hi){
+      case 0: return r.name+(r.isHost?" (H)":"");
+      case 1: return r.tc;
+      case 2: return fmtN(r.bi);
+      case 3: return r.pos>0?(r.pos+"°"):"—";
+      case 4: return r.pm>0?fmtN(r.pm):"—";
+      case 5: var win=t1sorted.filter(function(x){return x.pm>0;}); var rk=win.indexOf(r); return (rk>=0&&r.pm>0)?(pr.ng-rk):"—";
+      case 6: return fmtS2(r.rj);
+      case 7: return r.isHost?("+"+fmtN(r.comida)):"-$8.000";
+      case 8: return fmtS2(r.rj+r.comida);
+      default: return "";
+    }
+  }, colAligns);
+  var sumW = cols.reduce(function(s,c){return s+c.w;},0);
+  if(sumW > CW){ var sc=CW/sumW; cols.forEach(function(c){c.w*=sc;}); sumW=CW; }
+  cols[cols.length-1].w += CW - sumW;
   t1sorted.forEach(function(r, ri){
     var isHost = r.isHost;
     var bg = ri%2===0 ? WHITE : ALT_BG;
