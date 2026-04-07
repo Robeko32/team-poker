@@ -1265,14 +1265,6 @@ document.getElementById("btn-share").addEventListener("click", function() {
 
   y=23; cx=M;
   hCols.forEach(function(col){
-    cell(col.h,cx,y,col.w,HDR_BG,BLUE_H,true,"center");
-    // Fix: missing y param
-    cx+=col.w;
-  });
-
-  // Redo headers properly
-  y=23; cx=M;
-  hCols.forEach(function(col){
     cell(col.h,cx,y,col.w,RH,HDR_BG,BLUE_H,true,"center"); cx+=col.w;
   });
   y+=RH;
