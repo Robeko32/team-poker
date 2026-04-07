@@ -389,6 +389,7 @@ function startListeners() {
         if (p.asiste   === undefined) p.asiste   = true;
         if (p.premioOverride === undefined) p.premioOverride = -1;
       });
+      if (!T.pagoOverrides) T.pagoOverrides = {};
     } else {
       T = defT();
       saveT();
@@ -665,47 +666,70 @@ document.getElementById("cfg-host").addEventListener("change",  function(e) { T.
 // ─────────────────────────────────────────────────────────────────────────────
 // PAYMENTS
 // ─────────────────────────────────────────────────────────────────────────────
-function renderPayments() {
-  var body = document.getElementById("pay-body");
+function calcPagos() {
   var c  = calcPozo();
   var pr = c.active.length ? calcPremios(c.pozo, c.active.length) : {ng:0, amounts:[]};
   var cobroHost = c.active.filter(function(p){return p.name!==T.host;}).length * 8000;
-  var anyPos = c.active.some(function(p){return p.pos > 0;});
-
-  if (!anyPos) { body.innerHTML = '<span class="nop">Asigna posiciones para calcular pagos.</span>'; return; }
-
   var bals = c.active.map(function(p) {
     var isHost = p.name === T.host;
     var buyin  = (p.cajasIni + p.rebuys) * cajaVal();
     var isW    = p.pos >= 1 && p.pos <= pr.ng;
-    var premio = isW ? pr.amounts[p.pos-1] : 0;
+    var pmBase = isW ? pr.amounts[p.pos-1] : 0;
+    var premio = (p.premioOverride>=0) ? p.premioOverride : pmBase;
     return {name: p.name, bal: isHost ? (premio-buyin+cobroHost) : (premio-buyin-8000)};
   });
-
   var deb = bals.filter(function(b){return b.bal<0;}).map(function(b){return {name:b.name,bal:-b.bal};}).sort(function(a,b){return b.bal-a.bal;});
   var cre = bals.filter(function(b){return b.bal>0;}).sort(function(a,b){return b.bal-a.bal;});
   var pagos=[]; var di=0, ci=0;
   while(di<deb.length && ci<cre.length) {
     var m = Math.min(deb[di].bal, cre[ci].bal);
-    if(m>10) pagos.push({de:deb[di].name, a:cre[ci].name, monto:m});
+    if(m>10) pagos.push({de:deb[di].name, a:cre[ci].name, montoBase:m});
     deb[di].bal -= m; cre[ci].bal -= m;
     if(deb[di].bal<10) di++;
     if(cre[ci].bal<10) ci++;
   }
+  return pagos;
+}
+
+function renderPayments() {
+  var body = document.getElementById("pay-body");
+  var c = calcPozo();
+  var anyPos = c.active.some(function(p){return p.pos > 0;});
+  if (!anyPos) { body.innerHTML = '<span class="nop">Asigna posiciones para calcular pagos.</span>'; return; }
+  var pagos = calcPagos();
   if(!pagos.length) { body.innerHTML='<span class="nop">Todo cuadra — no hay pagos pendientes.</span>'; return; }
-  body.innerHTML = pagos.map(function(p) {
+  if (!T.pagoOverrides) T.pagoOverrides = {};
+  var sumBase=0, sumOver=0;
+  pagos.forEach(function(p){ sumBase+=p.montoBase; });
+  var html = pagos.map(function(p) {
+    var key=p.de+"_"+p.a;
+    var ov=T.pagoOverrides[key];
+    var edited=(ov!==undefined&&ov>=0);
+    var monto=edited?ov:p.montoBase;
+    sumOver+=monto;
     return '<div class="payrow">'
       +'<span class="pfrom">'+p.de+'</span>'
       +'<span class="parrow">→</span>'
       +'<span class="pto">'+p.a+'</span>'
-      +'<span class="pamt">'+fmt(p.monto)+'</span>'
+      +'<input type="text" inputmode="numeric" class="pamt-inp'+(edited?' edited':'')+'"'
+      +' value="'+Math.round(monto)+'"'
+      +' onchange="handlePagoEdit(\x27'+p.de+'_'+p.a+'\x27,this.value)">'
       +'</div>';
   }).join("");
+  var diff=Math.abs(sumOver-sumBase);
+  if(diff>10) html+='<div style="background:#dc2626;color:#fff;font-weight:700;font-size:12px;padding:8px 12px;border-radius:6px;margin-top:6px;text-align:center">⚠ Los pagos suman $'+Math.round(sumOver).toLocaleString("es-CL")+' pero el total calculado es $'+Math.round(sumBase).toLocaleString("es-CL")+'. Diferencia: $'+Math.round(diff).toLocaleString("es-CL")+'</div>';
+  body.innerHTML = html;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// RANKING TABLE
-// ─────────────────────────────────────────────────────────────────────────────
+function handlePagoEdit(key, val) {
+  if (!T.pagoOverrides) T.pagoOverrides = {};
+  var v = parseInt(val);
+  T.pagoOverrides[key] = (isNaN(v)||v<0) ? -1 : v;
+  saveT();
+  renderPayments();
+}
+
+
 function renderRankTable() {
   if (!H) return;
   var rows = PLAYERS.map(function(name) {
@@ -950,22 +974,12 @@ document.getElementById("btn-share").addEventListener("click", function() {
     return {name:name,pct:(combRatio(h)*100).toFixed(1)};
   }).sort(function(a,b){return parseFloat(a.pct)-parseFloat(b.pct);});
 
-  var bals = c.active.map(function(p){
-    var isH=p.name===T.host, bi=(p.cajasIni+p.rebuys)*cajaVal();
-    var isW=p.pos>=1&&p.pos<=pr.ng;
-    var pmB=isW?pr.amounts[p.pos-1]:0;
-    var pm=(p.premioOverride>=0)?p.premioOverride:pmB;
-    return {name:p.name,bal:isH?(pm-bi+cobroHost):(pm-bi-8000)};
+  var pagosBase=calcPagos();
+  var ovr2=T.pagoOverrides||{};
+  var pagos=pagosBase.map(function(p){
+    var key=p.de+"_"+p.a, ov=ovr2[key];
+    return {de:p.de,a:p.a,monto:(ov!==undefined&&ov>=0)?ov:p.montoBase};
   });
-  var deb=bals.filter(function(b){return b.bal<0;}).map(function(b){return {name:b.name,bal:-b.bal};}).sort(function(a,b){return b.bal-a.bal;});
-  var cred=bals.filter(function(b){return b.bal>0;}).sort(function(a,b){return b.bal-a.bal;});
-  var pagos=[]; var di2=0,ci2=0;
-  while(di2<deb.length&&ci2<cred.length){
-    var m2=Math.min(deb[di2].bal,cred[ci2].bal);
-    if(m2>10) pagos.push({de:deb[di2].name,a:cred[ci2].name,monto:m2});
-    deb[di2].bal-=m2;cred[ci2].bal-=m2;
-    if(deb[di2].bal<10)di2++;if(cred[ci2].bal<10)ci2++;
-  }
 
   // ── jsPDF ────────────────────────────────────────────────────────────────
   var doc = new window.jspdf.jsPDF({orientation:"portrait",unit:"mm",format:"a4"});
