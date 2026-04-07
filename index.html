@@ -1064,19 +1064,6 @@ document.getElementById("btn-share").addEventListener("click", function() {
     });
   }
 
-  // cols defined after t1sorted below
-
-  var RH = 7, y = 23;
-
-  // Header row
-  var cx = M;
-  cols.forEach(function(col){
-    cell(col.h, cx, y, col.w, RH, HDR_BG, BLUE_H, true, "center");
-    cx += col.w;
-  });
-  y += RH;
-
-  // Data rows
   var t1sorted = t1; // already sorted desc by rj
 
   var colNames = ["Jugador","Cajas","Buy-In","Pos.","Premio","Pts","Resultado","Comida","Total"];
@@ -1098,6 +1085,17 @@ document.getElementById("btn-share").addEventListener("click", function() {
   var sumW = cols.reduce(function(s,c){return s+c.w;},0);
   if(sumW > CW){ var sc=CW/sumW; cols.forEach(function(c){c.w*=sc;}); sumW=CW; }
   cols[cols.length-1].w += CW - sumW;
+
+  var RH = 7, y = 23;
+
+  // Header row
+  var cx = M;
+  cols.forEach(function(col){
+    cell(col.h, cx, y, col.w, RH, HDR_BG, BLUE_H, true, "center");
+    cx += col.w;
+  });
+  y += RH;
+
   t1sorted.forEach(function(r, ri){
     var isHost = r.isHost;
     var bg = ri%2===0 ? WHITE : ALT_BG;
