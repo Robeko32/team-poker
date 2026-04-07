@@ -101,6 +101,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--f);font-size:14px;
 
 /* Pos select */
 .ps{height:26px;width:46px;background:#f9fafb;border:1px solid var(--border2);border-radius:var(--r);font-family:var(--m);font-size:12px;text-align:center;padding:0 2px;outline:none;-webkit-appearance:none;cursor:pointer}
+.pos-btns{display:flex;gap:3px;flex-wrap:wrap;justify-content:center}
+.pos-btn{height:26px;min-width:26px;padding:0 5px;border:1px solid var(--border2);border-radius:5px;background:#f9fafb;font-family:var(--m);font-size:11px;font-weight:500;cursor:pointer;color:var(--muted);transition:all .1s}
+.pos-btn.active{background:var(--amber-l);border-color:var(--amber-b);color:var(--amber);font-weight:700}
+.pos-btn:hover{border-color:var(--border);background:var(--bg3)}
 .ps.sel{border-color:#f59e0b;color:#92400e;background:#fffbeb;font-weight:500}
 
 /* Result colors */
@@ -545,13 +549,22 @@ function renderTable() {
         + '<button class="sb" data-action="reb+" data-i="'+i+'">+</button>'
         + '</div>' : "—";
 
-    var posOpts = '<option value="0">—</option>';
-    for (var k = 0; k < pr.ng; k++) {
-      posOpts += '<option value="'+(k+1)+'"'+(p.pos===k+1?' selected':'')+'>'+(k+1)+'°</option>';
+    var posEl = "—";
+    if (p.asiste) {
+      if (pr.ng === 0) {
+        posEl = '<span style="color:var(--hint);font-size:11px">—</span>';
+      } else {
+        var btnHtml = '<div class="pos-btns">';
+        // "None" button to clear position
+        btnHtml += '<button class="pos-btn'+(p.pos===0?' active':'')+'" onclick="setPosBtn('+i+',0)">—</button>';
+        for (var k = 0; k < pr.ng; k++) {
+          var kpos = k+1;
+          btnHtml += '<button class="pos-btn'+(p.pos===kpos?' active':'')+'" onclick="setPosBtn('+i+','+kpos+')">'+(kpos)+'°</button>';
+        }
+        btnHtml += '</div>';
+        posEl = btnHtml;
+      }
     }
-    var posEl = p.asiste
-      ? '<select class="ps'+(p.pos>0?' sel':'')+'" data-action="pos" data-i="'+i+'" onchange="handlePos(this)">'+posOpts+'</select>'
-      : "—";
 
     var premioEdited = p.asiste && p.premioOverride >= 0 && p.premioOverride !== premioBase;
     var premioInputVal = p.asiste ? (premioEdited ? p.premioOverride : premioBase) : 0;
@@ -585,6 +598,13 @@ function handlePos(el) {
   if (!T) return;
   var i = parseInt(el.getAttribute("data-i"));
   T.players[i].pos = parseInt(el.value) || 0;
+  T.players[i].premioOverride = -1;
+  saveT();
+  renderAll();
+}
+function setPosBtn(i, pos) {
+  if (!T) return;
+  T.players[i].pos = pos;
   T.players[i].premioOverride = -1;
   saveT();
   renderAll();
