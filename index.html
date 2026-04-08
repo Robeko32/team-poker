@@ -1217,16 +1217,15 @@ document.getElementById("btn-share").addEventListener("click", function() {
     cell((H[r.name]||{veces:0}).veces||0,cx,y,fc[5].w,RH,bg,BLACK,false,"center");
   });
 
-  // ── PAGE 3: Liquidación ───────────────────────────────────────────────────
-  doc.addPage();
-  pageHeader("LIQUIDACION — QUIEN PAGA A QUIEN");
+  // ── PAGE 3: Quién paga a quién ──────────────────────────────────────────
   if(!pagos.length){
+    doc.addPage();
+    pageHeader("Quién paga a quién", 100);
     y=29;
-    y=23;
-    y=29; setFill(WHITE[0],WHITE[1],WHITE[2]); doc.rect(M,y,CW,RH,"F");
-    doc.setDrawColor(180,180,180); doc.rect(M,y,CW,RH,"S");
+    setFill(WHITE[0],WHITE[1],WHITE[2]); doc.rect(M,y,100,RH,"F");
+    doc.setDrawColor(180,180,180); doc.rect(M,y,100,RH,"S");
     setTxt(0,128,0); setFnt(8.5,true);
-    doc.text("Todo cuadra - no hay pagos pendientes",M+CW/2,y+RH/2,{align:"center",baseline:"middle"});
+    doc.text("Todo cuadra - no hay pagos pendientes",M+50,y+RH/2,{align:"center",baseline:"middle"});
   } else {
     var lDefs=[
       {h:"Paga",   a:"left",   val:function(r){return r.de;}},
@@ -1234,14 +1233,13 @@ document.getElementById("btn-share").addEventListener("click", function() {
       {h:"Recibe", a:"left",   val:function(r){return r.a;}},
       {h:"Monto",  a:"right",  val:function(r){return fmtN(r.monto);}}
     ];
-    drawPage("LIQUIDACION — QUIEN PAGA A QUIEN", lDefs, pagos, function(r,ri,fc){
+    drawPage("Quién paga a quién", lDefs, pagos, function(r,ri,fc){
       var bg=ri%2===0?WHITE:ALT_BG;
       cell(r.de,cx,y,fc[0].w,RH,bg,[192,0,0],true,"left"); cx+=fc[0].w;
       cell("->",cx,y,fc[1].w,RH,bg,[100,100,100],false,"center"); cx+=fc[1].w;
       cell(r.a,cx,y,fc[2].w,RH,bg,[0,112,0],true,"left"); cx+=fc[2].w;
       cell(fmtN(r.monto),cx,y,fc[3].w,RH,bg,BLACK,true,"right");
     });
-    // Remove the extra page added by drawPage since we already added one
   }
 
   // ── PAGE 4: Ranking por puntos ────────────────────────────────────────────
@@ -1268,7 +1266,7 @@ document.getElementById("btn-share").addEventListener("click", function() {
     return {name:name,pV:parseInt(h.prevVeces)||0,pT:parseInt(h.prevTorneos)||0,
             v:h.veces||0,t:h.torneos||0,ratio:combRatio(h)};
   }).sort(function(a,b){return a.ratio-b.ratio;});
-  drawPage("PROXIMOS HOST", [
+  drawPage("Próximos Hosts", [
     {h:"#",              a:"center", val:function(r){ return String(hRows.indexOf(r)+1)+"."; }},
     {h:"Jugador",        a:"left",   val:function(r){ return r.name+(hRows.indexOf(r)===0?" <-":""); }},
     {h:"Host año ant.",  a:"center", val:function(r){ return r.pV; }},
