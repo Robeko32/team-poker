@@ -1096,14 +1096,19 @@ document.getElementById("btn-share").addEventListener("click", function() {
   var t1W = t1FixedCws.reduce(function(s,w){return s+w;},0);
   var pageW = t1W + MARG*2;
 
-  // Other tables scale font to fit same width
-  var fontSizes = colDefs.map(function(td, i){
-    if(i===0) return BASE_FSIZE;
-    var cws = measureCols(td.hdrs, td.rows, td.getVals, BASE_FSIZE);
-    var natW = cws.reduce(function(s,w){return s+w;},0);
-    var fs = BASE_FSIZE * (t1W / natW);
-    return Math.min(Math.max(fs, 5), BASE_FSIZE * 1.8);
-  });
+  // Other tables scale font to fit t1W exactly
+  var fontSizes = [BASE_FSIZE];
+  for(var fsi=1; fsi<colDefs.length; fsi++){
+    var td_i = colDefs[fsi];
+    var natW_i = measureCols(td_i.hdrs, td_i.rows, td_i.getVals, BASE_FSIZE).reduce(function(s,w){return s+w;},0);
+    var fs_i = BASE_FSIZE * (t1W / natW_i);
+    // Verify actual width at this font size and correct if needed
+    var actualW_i = measureCols(td_i.hdrs, td_i.rows, td_i.getVals, fs_i).reduce(function(s,w){return s+w;},0);
+    if(Math.abs(actualW_i - t1W) > 0.5) {
+      fs_i = fs_i * (t1W / actualW_i); // second correction
+    }
+    fontSizes.push(Math.min(Math.max(fs_i, 5), BASE_FSIZE * 2));
+  }
 
   function drawTablePage(doc, td, fs, isFirst, fixedCws) {
     var RH = Math.max(5, RH_BASE * fs / BASE_FSIZE);
