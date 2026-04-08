@@ -1198,7 +1198,7 @@ document.getElementById("btn-share").addEventListener("click", function() {
 
   // Table 5 — Hosts
   docs.push(makeDoc(
-    "Próximos Hosts",
+    "Próximas Sedes",
     ["#","Jugador","% Combinado"],
     ["center","left","center"],
     hRows,
@@ -1229,21 +1229,19 @@ document.getElementById("btn-share").addEventListener("click", function() {
   var colDefs = [
     // T1
     { title:"Resultado del torneo",
-      hdrs:["Jugador","Cajas","Buy-In","Pos.","Premio","Pts","Resultado","Comida","Total"],
-      aligns:["left","center","right","center","right","center","right","right","right"],
+      hdrs:["Jugador","Caj","Buy-In","P°","Premio","Resultado","Comida","Total"],
+      aligns:["left","center","right","center","right","right","right","right"],
       rows:t1sorted,
       getVals:function(r){
-        var win=t1sorted.filter(function(x){return x.pm>0;}); var rk=win.indexOf(r);
-        var pts=(rk>=0&&r.pm>0)?(pr.ng-rk):"—";
         return [r.name+(r.isHost?" (H)":""),r.tc,fmtN(r.bi),r.pos>0?(r.pos+"°"):"—",
-                r.pm>0?fmtN(r.pm):"—",pts,fmtS2(r.rj),
+                r.pm>0?fmtN(r.pm):"—",fmtS2(r.rj),
                 r.isHost?("+"+fmtN(r.comida)):"-$8.000",fmtS2(r.rj+r.comida)];
       },
       getColors:function(r){var tot=r.rj+r.comida;
-        return [r.isHost?[0,70,127]:BLACK,BLACK,BLACK,BLACK,r.pm>0?GREEN:BLACK,r.pm>0?GREEN:BLACK,
+        return [r.isHost?[0,70,127]:BLACK,BLACK,BLACK,BLACK,r.pm>0?GREEN:BLACK,
                 r.rj>0?GREEN:r.rj<0?RED:BLACK,r.isHost?GREEN:RED,tot>0?GREEN:tot<0?RED:BLACK];},
-      totals:{vals:["TOTALES",totalCajas,fmtN(totalBuyin),"",fmtN(totalPremio),"",fmtS2(totalRes),fmtN(totalComida),fmtS2(totalTotal)],
-              colors:[BLACK,BLACK,BLACK,BLACK,BLACK,BLACK,totalRes>=0?GREEN:RED,BLACK,totalTotal>=0?GREEN:RED]}
+      totals:{vals:["TOTALES",totalCajas,fmtN(totalBuyin),"",fmtN(totalPremio),fmtS2(totalRes),fmtN(totalComida),fmtS2(totalTotal)],
+              colors:[BLACK,BLACK,BLACK,BLACK,BLACK,totalRes>=0?GREEN:RED,BLACK,totalTotal>=0?GREEN:RED]}
     },
     // T2
     { title:"Ranking acumulado del año",
@@ -1270,7 +1268,7 @@ document.getElementById("btn-share").addEventListener("click", function() {
       getColors:function(r){return [BLACK,BLACK,BLACK,r.pts>0?GREEN:BLACK];}
     },
     // T5
-    { title:"Próximos Hosts",
+    { title:"Próximas Sedes",
       hdrs:["#","Jugador","% Combinado"],
       aligns:["center","left","center"],
       rows:hRows,
