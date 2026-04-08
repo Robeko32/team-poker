@@ -1047,14 +1047,15 @@ document.getElementById("btn-share").addEventListener("click", function() {
       aligns:["left","center","right","center","right","right","right","right"],
       rows:t1sorted,
       getVals:function(r){
-        return [r.name+(r.isHost?" (H)":""),r.tc,fmtNN(r.bi),r.pos>0?(r.pos+"\u00b0"):"--",
+        var nm = r.name.length>7 ? r.name.slice(0,7) : r.name;
+        return [nm,r.tc,fmtNN(r.bi),r.pos>0?(r.pos+"°"):"--",
                 r.pm>0?fmtNN(r.pm):"--",fmtSN(r.rj),
                 r.isHost?("+"+fmtNN(r.comida)):"-8.000",fmtSN(r.rj+r.comida)];
       },
       getColors:function(r){var tot=r.rj+r.comida;
         return [r.isHost?[0,70,127]:BLACK,BLACK,BLACK,BLACK,r.pm>0?GREEN:BLACK,
                 r.rj>0?GREEN:r.rj<0?RED:BLACK,r.isHost?GREEN:RED,tot>0?GREEN:tot<0?RED:BLACK];},
-      totals:{vals:["TOTALES",totalCajas,fmtNN(totalBuyin),"",fmtNN(totalPremio),fmtSN(totalRes),fmtNN(totalComida),fmtSN(totalTotal)],
+      totals:{vals:["TOTALE",totalCajas,fmtNN(totalBuyin),"",fmtNN(totalPremio),fmtSN(totalRes),fmtNN(totalComida),fmtSN(totalTotal)],
               colors:[BLACK,BLACK,BLACK,BLACK,BLACK,totalRes>=0?GREEN:RED,BLACK,totalTotal>=0?GREEN:RED]}
     },
     { title:"Ranking acumulado del a\u00f1o",
@@ -1087,24 +1088,26 @@ document.getElementById("btn-share").addEventListener("click", function() {
     }
   ];
 
-  // Page width locked to T1 natural width at BASE_FSIZE
-  var t1cws = measureCols(colDefs[0].hdrs, colDefs[0].rows, colDefs[0].getVals, BASE_FSIZE);
-  var t1W   = t1cws.reduce(function(s,w){return s+w;},0);
-  var pageW  = t1W + MARG*2;
+  // T1 fixed column widths (mm) — tuned to fit mobile screen
+  // Jugador:7ch, Caj:3ch, BuyIn:7ch, P°:2ch, Premio:7ch, Resultado:8ch, Comida:8ch, Total:8ch
+  var CH = 1.85; // mm per character at BASE_FSIZE
+  var P2 = PAD*2;
+  var t1FixedCws = [7*CH+P2, 3*CH+P2, 7*CH+P2, 2*CH+P2, 7*CH+P2, 8*CH+P2, 8*CH+P2, 8*CH+P2];
+  var t1W = t1FixedCws.reduce(function(s,w){return s+w;},0);
+  var pageW = t1W + MARG*2;
 
-  // Each table gets font that makes it fit exactly t1W
-  // (scale down if wider, scale up if narrower — capped at 1.5x)
-  var fontSizes = colDefs.map(function(td){
+  // Other tables scale font to fit same width
+  var fontSizes = colDefs.map(function(td, i){
+    if(i===0) return BASE_FSIZE;
     var cws = measureCols(td.hdrs, td.rows, td.getVals, BASE_FSIZE);
     var natW = cws.reduce(function(s,w){return s+w;},0);
     var fs = BASE_FSIZE * (t1W / natW);
-    return Math.min(Math.max(fs, 5), BASE_FSIZE * 1.5);
+    return Math.min(Math.max(fs, 5), BASE_FSIZE * 1.8);
   });
-  fontSizes[0] = BASE_FSIZE; // T1 always exact
 
-  function drawTablePage(doc, td, fs, isFirst) {
+  function drawTablePage(doc, td, fs, isFirst, fixedCws) {
     var RH = Math.max(5, RH_BASE * fs / BASE_FSIZE);
-    var cws = measureCols(td.hdrs, td.rows, td.getVals, fs);
+    var cws = fixedCws || measureCols(td.hdrs, td.rows, td.getVals, fs);
     var tblW = cws.reduce(function(s,w){return s+w;},0);
     var nRows = td.rows.length + (td.totals?1:0);
     var hdrH = RH*2.8 + RH + RH;
@@ -1179,9 +1182,9 @@ document.getElementById("btn-share").addEventListener("click", function() {
   var nr0=colDefs[0].rows.length+(colDefs[0].totals?1:0);
   var ph0=Math.max(5,RH_BASE*fs0/BASE_FSIZE)*2.8+Math.max(5,RH_BASE*fs0/BASE_FSIZE)*2+nr0*Math.max(5,RH_BASE*fs0/BASE_FSIZE)+MARG;
   var finalDoc=new window.jspdf.jsPDF({unit:"mm",format:[pageW,ph0]});
-  drawTablePage(finalDoc,colDefs[0],fs0,true);
+  drawTablePage(finalDoc,colDefs[0],fs0,true,t1FixedCws);
   for(var ti=1;ti<colDefs.length;ti++){
-    drawTablePage(finalDoc,colDefs[ti],fontSizes[ti],false);
+    drawTablePage(finalDoc,colDefs[ti],fontSizes[ti],false,null);
   }
 
   var fname="resumen_poker_T"+T.nro+".pdf";
