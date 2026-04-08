@@ -1087,20 +1087,28 @@ document.getElementById("btn-share").addEventListener("click", function() {
     }
   ];
 
-  // Page width = natural width of T1 at BASE_FSIZE (never scale T1 down)
-  var cws1 = measureCols(colDefs[0].hdrs, colDefs[0].rows, colDefs[0].getVals, BASE_FSIZE);
-  var tblW1 = cws1.reduce(function(s,w){return s+w;},0);
+  // Find font size for T1 that fits within MAX_W
+  var MAX_W = 88;
+  var fs1 = BASE_FSIZE;
+  var cws1, tblW1;
+  for(var attempt=0; attempt<20; attempt++){
+    cws1 = measureCols(colDefs[0].hdrs, colDefs[0].rows, colDefs[0].getVals, fs1);
+    tblW1 = cws1.reduce(function(s,w){return s+w;},0);
+    if(tblW1 <= MAX_W) break;
+    fs1 -= 0.5;
+    if(fs1 < 5) break;
+  }
   var pageW = tblW1 + MARG*2;
 
-  // Font size per table: T1 stays at BASE_FSIZE, others scale UP to fill pageW
+  // Font size per table: T1 uses fs1, others scale UP to fill same width
   var naturalWidths = colDefs.map(function(td){
     var cws = measureCols(td.hdrs, td.rows, td.getVals, BASE_FSIZE);
     return cws.reduce(function(s,w){return s+w;},0);
   });
   var fontSizes = naturalWidths.map(function(nw, i){
-    if(i===0) return BASE_FSIZE; // T1 always at base size
-    var fs = BASE_FSIZE * (tblW1 / nw);
-    return Math.min(fs, BASE_FSIZE * 2.5); // cap at 2.5x
+    if(i===0) return fs1;
+    var natW = nw * (fs1/BASE_FSIZE);
+    return Math.min(fs1 * (tblW1/natW), BASE_FSIZE * 2.5);
   });
 
   function drawTablePage(doc, td, fs, isFirst) {
