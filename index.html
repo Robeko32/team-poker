@@ -1100,10 +1100,18 @@ document.getElementById("btn-share").addEventListener("click", function() {
     var fs = BASE_FSIZE * (maxNatW / nw);
     return Math.min(fs, BASE_FSIZE * 2.5);
   });
-  // T1 is the widest — stays at BASE_FSIZE
-  // cws1/tblW1 for reference
-  var cws1 = measureCols(colDefs[0].hdrs, colDefs[0].rows, colDefs[0].getVals, fontSizes[0]);
-  var tblW1 = cws1.reduce(function(s,w){return s+w;},0);
+  // Recompute pageW from actual table widths at their fontSizes
+  // (scaling is not perfectly linear so recalculate)
+  var actualWidths = fontSizes.map(function(fs, i){
+    var cws = measureCols(colDefs[i].hdrs, colDefs[i].rows, colDefs[i].getVals, fs);
+    return cws.reduce(function(s,w){return s+w;},0);
+  });
+  var maxActual = Math.max.apply(null, actualWidths);
+  pageW = maxActual + MARG*2;
+  // Rescale fonts again using actual widths
+  fontSizes = fontSizes.map(function(fs, i){
+    return fs * (maxActual / actualWidths[i]);
+  });
 
   function drawTablePage(doc, td, fs, isFirst) {
     var RH = Math.max(5, RH_BASE * fs / BASE_FSIZE);
