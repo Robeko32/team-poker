@@ -1029,27 +1029,28 @@ document.getElementById("btn-share").addEventListener("click", function() {
     }
   }
 
-  function pageHeader(title) {
-    // Top bar
-    setFill(31,78,121); doc.rect(0,0,PW,14,"F");
-    setTxt(255,255,255); setFnt(12,true);
-    doc.text("Club de Poker", M, 9);
-    setFnt(7.5,false);
+  function pageHeader(title, tblW) {
+    var W = tblW || CW;
     var d2=new Date(T.fecha+"T12:00:00");
     var fStr=isNaN(d2.getTime())?T.fecha:d2.toLocaleDateString("es-CL",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
-    doc.text("Torneo #"+T.nro+" | "+fStr+" | Host: "+(T.host||"—")+" | Pozo: "+fmtN(c.pozo), PW-M, 9, {align:"right"});
-    // Section title
+    var hostStr="Torneo #"+T.nro+" | Host: "+(T.host||"—")+" | Pozo: "+fmtN(c.pozo);
+    // Top bar — same width as table
+    setFill(31,78,121); doc.rect(M,6,W,14,"F");
+    setTxt(255,255,255); setFnt(10,true);
+    doc.text("Team Poker", M+2, 12, {baseline:"middle"});
+    setFnt(7,false);
+    doc.text(fStr, M+2, 17, {baseline:"middle"});
+    doc.text(hostStr, M+2, 22, {baseline:"middle"});
+    // Section title bar
     setFill(HDR_BG[0],HDR_BG[1],HDR_BG[2]);
-    doc.rect(M,15,CW,7,"F");
+    doc.rect(M,21,W,7,"F");
     doc.setDrawColor(150,150,150); doc.setLineWidth(0.3);
-    doc.rect(M,15,CW,7,"S");
+    doc.rect(M,21,W,7,"S");
     setTxt(BLUE_H[0],BLUE_H[1],BLUE_H[2]); setFnt(9,true);
-    doc.text(title, M+2, 19, {baseline:"middle"});
+    doc.text(title, M+2, 25, {baseline:"middle"});
   }
 
   // ── PAGE 1: Resultado del torneo ──────────────────────────────────────────
-  pageHeader("RESULTADO DEL TORNEO");
-
   // Auto-fit column widths to content
   function autoFitCols(headers, rows, getVal, aligns) {
     setFnt(8.5, false);
@@ -1084,8 +1085,9 @@ document.getElementById("btn-share").addEventListener("click", function() {
   }, colAligns);
   var sumW = cols.reduce(function(s,c){return s+c.w;},0);
   if(sumW > CW){ var sc=CW/sumW; cols.forEach(function(c){c.w*=sc;}); sumW=CW; }
+  pageHeader("RESULTADO DEL TORNEO", sumW);
 
-  var RH = 7, y = 23;
+  var RH = 7, y = 29;
 
   // Header row
   var cx = M;
@@ -1174,8 +1176,7 @@ document.getElementById("btn-share").addEventListener("click", function() {
   // ── Shared drawPage helper ───────────────────────────────────────────────
   function drawPage(title, colDefs, rows, drawRow) {
     doc.addPage();
-    pageHeader(title);
-    // Auto-fit columns
+    // Auto-fit columns first, then draw header with correct width
     var fitCols = autoFitCols(
       colDefs.map(function(c){return c.h;}),
       rows,
@@ -1184,7 +1185,8 @@ document.getElementById("btn-share").addEventListener("click", function() {
     );
     var sw = fitCols.reduce(function(s,c){return s+c.w;},0);
     if(sw > CW){ var sc2=CW/sw; fitCols.forEach(function(c){c.w*=sc2;}); sw=CW; }
-    y=23; cx=M;
+    pageHeader(title, sw);
+    y=29; cx=M;
     fitCols.forEach(function(col){ cell(col.h,cx,y,col.w,RH,HDR_BG,BLUE_H,true,"center"); cx+=col.w; });
     y+=RH;
     rows.forEach(function(r,ri){
@@ -1219,8 +1221,9 @@ document.getElementById("btn-share").addEventListener("click", function() {
   doc.addPage();
   pageHeader("LIQUIDACION — QUIEN PAGA A QUIEN");
   if(!pagos.length){
+    y=29;
     y=23;
-    setFill(WHITE[0],WHITE[1],WHITE[2]); doc.rect(M,y,CW,RH,"F");
+    y=29; setFill(WHITE[0],WHITE[1],WHITE[2]); doc.rect(M,y,CW,RH,"F");
     doc.setDrawColor(180,180,180); doc.rect(M,y,CW,RH,"S");
     setTxt(0,128,0); setFnt(8.5,true);
     doc.text("Todo cuadra - no hay pagos pendientes",M+CW/2,y+RH/2,{align:"center",baseline:"middle"});
@@ -1292,7 +1295,7 @@ document.getElementById("btn-share").addEventListener("click", function() {
     setFill(HDR_BG[0],HDR_BG[1],HDR_BG[2]);
     doc.rect(0,PH-8,PW,8,"F");
     setTxt(BLUE_H[0],BLUE_H[1],BLUE_H[2]); setFnt(7,false);
-    doc.text("Club de Poker | Torneo #"+T.nro+" | "+new Date().toLocaleDateString("es-CL"),
+    doc.text("Team Poker | Torneo #"+T.nro+" | "+new Date().toLocaleDateString("es-CL"),
       PW/2,PH-4,{align:"center",baseline:"middle"});
     doc.text(pi+"/"+totalPgs,PW-M,PH-4,{align:"right",baseline:"middle"});
   }
