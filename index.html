@@ -1109,11 +1109,15 @@ document.getElementById("btn-share").addEventListener("click", function() {
     var RH = Math.max(5, RH_BASE * fs / BASE_FSIZE);
     var cws = fixedCws || measureCols(td.hdrs, td.rows, td.getVals, fs);
     var tblW = cws.reduce(function(s,w){return s+w;},0);
+    var nRows2 = td.rows.length + (td.totals?1:0);
+    var hdrH2 = RH*2.8 + RH + RH;
+    var ph2 = hdrH2 + nRows2*RH + MARG;
+    if(!isFirst) doc.addPage([pageW, ph2]);
     var nRows = td.rows.length + (td.totals?1:0);
     var hdrH = RH*2.8 + RH + RH;
     var ph = hdrH + nRows*RH + MARG;
 
-    if(!isFirst) doc.addPage([pageW, ph]);
+
 
     function sf(r,g,b){ doc.setFillColor(r,g,b); }
     function st(r,g,b){ doc.setTextColor(r,g,b); }
