@@ -1152,26 +1152,7 @@ document.getElementById("btn-share").addEventListener("click", function() {
   cell(fmtS2(totalTotal), cx,y,cols[8].w,RH,TOT_BG,totalTotal>=0?GREEN:RED,true,"right");
   y += RH;
 
-  // Prize box
-  y += 4;
-  setFill(HDR_BG[0],HDR_BG[1],HDR_BG[2]);
-  doc.rect(M,y,60,6,"F");
-  doc.setDrawColor(150,150,150); doc.rect(M,y,60,6,"S");
-  setTxt(BLUE_H[0],BLUE_H[1],BLUE_H[2]); setFnt(8,true);
-  doc.text("Puesto",M+2,y+3,{baseline:"middle"});
-  doc.text("Premio",M+22,y+3,{baseline:"middle"});
-  doc.text("Puntos",M+42,y+3,{baseline:"middle"});
-  y+=6;
-  for(var pp=0;pp<pr.ng;pp++){
-    var pbg = pp%2===0?WHITE:ALT_BG;
-    setFill(pbg[0],pbg[1],pbg[2]); doc.rect(M,y,60,6,"F");
-    doc.setDrawColor(180,180,180); doc.rect(M,y,60,6,"S");
-    setTxt(0,0,0); setFnt(8,false);
-    doc.text(String(pp+1)+"°",M+2,y+3,{baseline:"middle"});
-    doc.text(fmtN(pr.amounts[pp]),M+22,y+3,{baseline:"middle"});
-    doc.text(String(pr.ng-pp),M+42,y+3,{baseline:"middle"});
-    y+=6;
-  }
+
 
   // ── Shared drawPage helper ───────────────────────────────────────────────
   function drawPage(title, colDefs, rows, drawRow) {
@@ -1267,23 +1248,15 @@ document.getElementById("btn-share").addEventListener("click", function() {
             v:h.veces||0,t:h.torneos||0,ratio:combRatio(h)};
   }).sort(function(a,b){return a.ratio-b.ratio;});
   drawPage("Próximos Hosts", [
-    {h:"#",              a:"center", val:function(r){ return String(hRows.indexOf(r)+1)+"."; }},
-    {h:"Jugador",        a:"left",   val:function(r){ return r.name+(hRows.indexOf(r)===0?" <-":""); }},
-    {h:"Host año ant.",  a:"center", val:function(r){ return r.pV; }},
-    {h:"Asist. año ant.",a:"center", val:function(r){ return r.pT; }},
-    {h:"Host año",       a:"center", val:function(r){ return r.v; }},
-    {h:"Torneos",        a:"center", val:function(r){ return r.t; }},
-    {h:"% Combinado",    a:"center", val:function(r){ return fmtPct(r.ratio); }}
+    {h:"#",           a:"center", val:function(r){ return String(hRows.indexOf(r)+1)+"."; }},
+    {h:"Jugador",     a:"left",   val:function(r){ return r.name+(hRows.indexOf(r)===0?" <-":""); }},
+    {h:"% Combinado", a:"center", val:function(r){ return fmtPct(r.ratio); }}
   ], hRows, function(r,ri,fc){
     var bg=ri%2===0?WHITE:ALT_BG;
     var isNext=ri===0;
     cell(String(ri+1)+".",cx,y,fc[0].w,RH,bg,BLACK,false,"center"); cx+=fc[0].w;
     cell(r.name+(isNext?" <-":""),cx,y,fc[1].w,RH,bg,isNext?[0,70,127]:BLACK,isNext,"left"); cx+=fc[1].w;
-    cell(r.pV,cx,y,fc[2].w,RH,bg,BLACK,false,"center"); cx+=fc[2].w;
-    cell(r.pT,cx,y,fc[3].w,RH,bg,BLACK,false,"center"); cx+=fc[3].w;
-    cell(r.v,cx,y,fc[4].w,RH,bg,BLACK,false,"center"); cx+=fc[4].w;
-    cell(r.t,cx,y,fc[5].w,RH,bg,BLACK,false,"center"); cx+=fc[5].w;
-    cell(fmtPct(r.ratio),cx,y,fc[6].w,RH,bg,BLACK,false,"center");
+    cell(fmtPct(r.ratio),cx,y,fc[2].w,RH,bg,BLACK,false,"center");
   });
 
   // Footer all pages
