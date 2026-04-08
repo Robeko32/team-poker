@@ -1006,6 +1006,8 @@ document.getElementById("btn-share").addEventListener("click", function() {
   var BLUE_H = [31,78,121];
 
   function fmtN(n){ return "$"+Math.round(Math.abs(n)).toLocaleString("es-CL"); }
+  function fmtNN(n){ return Math.round(Math.abs(n)).toLocaleString("es-CL"); }
+  function fmtSN(n){ return (n>0?"+":n<0?"-":"")+fmtNN(n); }
   function fmtS2(n){ return (n>0?"+":n<0?"-":"")+fmtN(n); }
   function fmtPct(n){ return (n*100).toFixed(1)+"%"; }
 
@@ -1233,23 +1235,23 @@ document.getElementById("btn-share").addEventListener("click", function() {
       aligns:["left","center","right","center","right","right","right","right"],
       rows:t1sorted,
       getVals:function(r){
-        return [r.name+(r.isHost?" (H)":""),r.tc,fmtN(r.bi),r.pos>0?(r.pos+"°"):"—",
-                r.pm>0?fmtN(r.pm):"—",fmtS2(r.rj),
-                r.isHost?("+"+fmtN(r.comida)):"-$8.000",fmtS2(r.rj+r.comida)];
+        return [r.name+(r.isHost?" (H)":""),r.tc,fmtNN(r.bi),r.pos>0?(r.pos+"°"):"—",
+                r.pm>0?fmtNN(r.pm):"—",fmtSN(r.rj),
+                r.isHost?("+"+fmtNN(r.comida)):"-8.000",fmtSN(r.rj+r.comida)];
       },
       getColors:function(r){var tot=r.rj+r.comida;
         return [r.isHost?[0,70,127]:BLACK,BLACK,BLACK,BLACK,r.pm>0?GREEN:BLACK,
                 r.rj>0?GREEN:r.rj<0?RED:BLACK,r.isHost?GREEN:RED,tot>0?GREEN:tot<0?RED:BLACK];},
-      totals:{vals:["TOTALES",totalCajas,fmtN(totalBuyin),"",fmtN(totalPremio),fmtS2(totalRes),fmtN(totalComida),fmtS2(totalTotal)],
+      totals:{vals:["TOTALES",totalCajas,fmtNN(totalBuyin),"",fmtNN(totalPremio),fmtSN(totalRes),fmtNN(totalComida),fmtSN(totalTotal)],
               colors:[BLACK,BLACK,BLACK,BLACK,BLACK,totalRes>=0?GREEN:RED,BLACK,totalTotal>=0?GREEN:RED]}
     },
     // T2
     { title:"Ranking acumulado del año",
-      hdrs:["#","Jugador","Torneos","Acumulado","Promedio","Host"],
-      aligns:["center","left","center","right","right","center"],
+      hdrs:["#","Jugador","Torneos","Acumulado","Promedio"],
+      aligns:["center","left","center","right","right"],
       rows:t2sorted,
-      getVals:function(r){return [String(t2sorted.indexOf(r)+1)+".",r.name,r.t,fmtS2(r.res),fmtS2(Math.round(r.t>0?r.res/r.t:0)),(H[r.name]||{veces:0}).veces||0];},
-      getColors:function(r){var rc=r.res>0?GREEN:r.res<0?RED:BLACK; return [BLACK,BLACK,BLACK,rc,rc,BLACK];}
+      getVals:function(r){return [String(t2sorted.indexOf(r)+1)+".",r.name,r.t,fmtS2(r.res),fmtS2(Math.round(r.t>0?r.res/r.t:0))];},
+      getColors:function(r){var rc=r.res>0?GREEN:r.res<0?RED:BLACK; return [BLACK,BLACK,BLACK,rc,rc];}
     },
     // T3
     { title:"Quién paga a quién",
