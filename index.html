@@ -1117,7 +1117,7 @@ document.getElementById("btn-share").addEventListener("click", function() {
     var nRows2 = td.rows.length + (td.totals?1:0);
     var hdrH2 = RH*2.8 + RH + RH;
     var ph2 = hdrH2 + nRows2*RH + MARG;
-    if(!isFirst) doc.addPage([pageW, ph2]);
+    doc.addPage([pageW, ph2]);
     var nRows = td.rows.length + (td.totals?1:0);
     var hdrH = RH*2.8 + RH + RH;
     var ph = hdrH + nRows*RH + MARG;
@@ -1186,15 +1186,13 @@ document.getElementById("btn-share").addEventListener("click", function() {
     }
   }
 
-  // Create doc with first page
-  var fs0=fontSizes[0];
-  var nr0=colDefs[0].rows.length+(colDefs[0].totals?1:0);
-  var ph0=Math.max(5,RH_BASE*fs0/BASE_FSIZE)*2.8+Math.max(5,RH_BASE*fs0/BASE_FSIZE)*2+nr0*Math.max(5,RH_BASE*fs0/BASE_FSIZE)+MARG;
-  var finalDoc=new window.jspdf.jsPDF({unit:"mm",format:[pageW,ph0]});
-  drawTablePage(finalDoc,colDefs[0],fs0,true,t1FixedCws);
+  // Create doc with dummy size — all pages added via addPage for consistency
+  var finalDoc=new window.jspdf.jsPDF({unit:"mm",format:[pageW,100]});
+  drawTablePage(finalDoc,colDefs[0],fontSizes[0],false,t1FixedCws);
   for(var ti=1;ti<colDefs.length;ti++){
     drawTablePage(finalDoc,colDefs[ti],fontSizes[ti],false,null);
   }
+  finalDoc.deletePage(1); // remove the auto-created blank first page
 
   var fname="resumen_poker_T"+T.nro+".pdf";
   var pdfBlob=finalDoc.output("blob");
