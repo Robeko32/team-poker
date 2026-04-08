@@ -1101,7 +1101,6 @@ document.getElementById("btn-share").addEventListener("click", function() {
     var RH = Math.max(5, RH_BASE * fs / BASE_FSIZE);
     var cws = measureCols(td.hdrs, td.rows, td.getVals, fs);
     var tblW = cws.reduce(function(s,w){return s+w;},0);
-    var LX = (pageW - tblW) / 2; // center table on page
     var nRows = td.rows.length + (td.totals?1:0);
     var hdrH = RH*2.8 + RH + RH;
     var ph = hdrH + nRows*RH + MARG;
@@ -1114,23 +1113,23 @@ document.getElementById("btn-share").addEventListener("click", function() {
     function txt(s, x, y2, align){ doc.text(String(s||""),x,y2,{align:align||"left",baseline:"middle"}); }
 
     var y=0;
-    sf(BLUE_H[0],BLUE_H[1],BLUE_H[2]); doc.rect(LX,y,tblW,RH*2.8,"F");
-    st(255,255,255); sfnt(fs+1,true); txt("Team Poker",LX+PAD,y+RH*0.85);
+    sf(BLUE_H[0],BLUE_H[1],BLUE_H[2]); doc.rect(MARG,y,tblW,RH*2.8,"F");
+    st(255,255,255); sfnt(fs+1,true); txt("Team Poker",MARG+PAD,y+RH*0.85);
     sfnt(fs-1,false);
     var d2=new Date(T.fecha+"T12:00:00");
     var fStr=isNaN(d2.getTime())?T.fecha:d2.toLocaleDateString("es-CL",{day:"numeric",month:"long",year:"numeric"});
-    txt("Torneo #"+T.nro+" | "+fStr,LX+PAD,y+RH*1.7);
-    txt("Host: "+(T.host||"--")+" | Pozo: "+fmtN(c.pozo),LX+PAD,y+RH*2.5);
+    txt("Torneo #"+T.nro+" | "+fStr,MARG+PAD,y+RH*1.7);
+    txt("Host: "+(T.host||"--")+" | Pozo: "+fmtN(c.pozo),MARG+PAD,y+RH*2.5);
     y+=RH*2.8;
 
-    sf(HDR_BG[0],HDR_BG[1],HDR_BG[2]); doc.rect(LX,y,tblW,RH,"F");
-    doc.setDrawColor(150,150,150); doc.setLineWidth(0.2); doc.rect(LX,y,tblW,RH,"S");
-    st(BLUE_H[0],BLUE_H[1],BLUE_H[2]); sfnt(fs,true); txt(td.title,LX+PAD,y+RH/2);
+    sf(HDR_BG[0],HDR_BG[1],HDR_BG[2]); doc.rect(MARG,y,tblW,RH,"F");
+    doc.setDrawColor(150,150,150); doc.setLineWidth(0.2); doc.rect(MARG,y,tblW,RH,"S");
+    st(BLUE_H[0],BLUE_H[1],BLUE_H[2]); sfnt(fs,true); txt(td.title,MARG+PAD,y+RH/2);
     y+=RH;
 
-    sf(HDR_BG[0],HDR_BG[1],HDR_BG[2]); doc.rect(LX,y,tblW,RH,"F");
-    doc.setDrawColor(150,150,150); doc.rect(LX,y,tblW,RH,"S");
-    var cx=LX;
+    sf(HDR_BG[0],HDR_BG[1],HDR_BG[2]); doc.rect(MARG,y,tblW,RH,"F");
+    doc.setDrawColor(150,150,150); doc.rect(MARG,y,tblW,RH,"S");
+    var cx=MARG;
     td.hdrs.forEach(function(h,hi){
       st(BLUE_H[0],BLUE_H[1],BLUE_H[2]); sfnt(fs-1,true);
       var a=td.aligns[hi]; var tx=a==="right"?cx+cws[hi]-PAD:a==="center"?cx+cws[hi]/2:cx+PAD;
@@ -1143,8 +1142,8 @@ document.getElementById("btn-share").addEventListener("click", function() {
       var bg=ri%2===0?WHITE:ALT_BG;
       var vals=td.getVals(r);
       var colors=td.getColors?td.getColors(r):null;
-      sf(bg[0],bg[1],bg[2]); doc.rect(LX,y,tblW,RH,"F");
-      doc.setDrawColor(210,210,210); doc.setLineWidth(0.1); doc.line(LX,y+RH,LX+tblW,y+RH);
+      sf(bg[0],bg[1],bg[2]); doc.rect(MARG,y,tblW,RH,"F");
+      doc.setDrawColor(210,210,210); doc.setLineWidth(0.1); doc.line(MARG,y+RH,MARG+tblW,y+RH);
       cx=MARG;
       vals.forEach(function(v,hi){
         var col=colors&&colors[hi]?colors[hi]:BLACK;
@@ -1157,8 +1156,8 @@ document.getElementById("btn-share").addEventListener("click", function() {
     });
 
     if(td.totals){
-      sf(TOT_BG[0],TOT_BG[1],TOT_BG[2]); doc.rect(LX,y,tblW,RH,"F");
-      doc.setDrawColor(150,150,150); doc.setLineWidth(0.2); doc.rect(LX,y,tblW,RH,"S");
+      sf(TOT_BG[0],TOT_BG[1],TOT_BG[2]); doc.rect(MARG,y,tblW,RH,"F");
+      doc.setDrawColor(150,150,150); doc.setLineWidth(0.2); doc.rect(MARG,y,tblW,RH,"S");
       cx=MARG;
       td.totals.vals.forEach(function(v,hi){
         var col=td.totals.colors&&td.totals.colors[hi]?td.totals.colors[hi]:BLACK;
