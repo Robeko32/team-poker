@@ -1127,14 +1127,14 @@ document.getElementById("btn-share").addEventListener("click", function() {
     }
   }
 
-  // Compute cws for other tables (auto-fit at FS, scaled to PW-MARG*2)
+  // Compute cws for other tables — scale to match T1 table width exactly
+  var tblW1 = t1cws.reduce(function(s,w){return s+w;},0);
   function autoCws(hdrs, rows, getVals){
     var natural = hdrs.map(function(h,hi){
       return colW(h, rows.map(function(r){return getVals(r)[hi];}));
     });
     var natW = natural.reduce(function(s,w){return s+w;},0);
-    var target = PW - MARG*2;
-    var scale = target / natW;
+    var scale = tblW1 / natW;
     return natural.map(function(w){ return w*scale; });
   }
 
