@@ -1087,15 +1087,20 @@ document.getElementById("btn-share").addEventListener("click", function() {
     }
   ];
 
-  // All tables use same font size — page width = widest table
-  var naturalWidths = colDefs.map(function(td){
+  // Page width locked to T1 natural width at BASE_FSIZE
+  var t1cws = measureCols(colDefs[0].hdrs, colDefs[0].rows, colDefs[0].getVals, BASE_FSIZE);
+  var t1W   = t1cws.reduce(function(s,w){return s+w;},0);
+  var pageW  = t1W + MARG*2;
+
+  // Each table gets font that makes it fit exactly t1W
+  // (scale down if wider, scale up if narrower — capped at 1.5x)
+  var fontSizes = colDefs.map(function(td){
     var cws = measureCols(td.hdrs, td.rows, td.getVals, BASE_FSIZE);
-    return cws.reduce(function(s,w){return s+w;},0);
+    var natW = cws.reduce(function(s,w){return s+w;},0);
+    var fs = BASE_FSIZE * (t1W / natW);
+    return Math.min(Math.max(fs, 5), BASE_FSIZE * 1.5);
   });
-  var maxNatW = Math.max.apply(null, naturalWidths);
-  var pageW   = maxNatW + MARG*2;
-  // All tables use the same BASE_FSIZE
-  var fontSizes = colDefs.map(function(){ return BASE_FSIZE; });
+  fontSizes[0] = BASE_FSIZE; // T1 always exact
 
   function drawTablePage(doc, td, fs, isFirst) {
     var RH = Math.max(5, RH_BASE * fs / BASE_FSIZE);
