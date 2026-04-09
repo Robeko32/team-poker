@@ -1057,6 +1057,7 @@ document.getElementById("btn-share").addEventListener("click", function() {
   t1cws = t1cws.map(function(w,i){ var vw=tw(totVals[i])+PAD*2; return Math.max(w,vw); });
 
   var PW = t1cws.reduce(function(s,w){return s+w;},0) + MARG*2; // page width
+  window._debugPW = PW; window._debugTblW1 = tblW1;
 
   // Generic page builder
   function makePage(doc, title, hdrs, alns, cws, rows, getVals, getColors, totRow){
@@ -1188,6 +1189,8 @@ document.getElementById("btn-share").addEventListener("click", function() {
   makePage(finalDoc,"Próximas Sedes",hhdrs,halns,autoCws(hhdrs,hRs,hvals),hRs,hvals,
     function(r){var isN=hRs.indexOf(r)===0; return [BLACK,isN?[0,70,127]:BLACK,BLACK];});
 
+  var _np=finalDoc.internal.getNumberOfPages();
+  for(var _pi=1;_pi<=_np;_pi++){finalDoc.setPage(_pi);var _ps=finalDoc.internal.pageSize;console.log("Page",_pi,"w:",_ps.getWidth().toFixed(3),"h:",_ps.getHeight().toFixed(3));}
   finalDoc.deletePage(1);
 
   var fname="resumen_poker_T"+T.nro+".pdf";
