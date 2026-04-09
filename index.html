@@ -1064,7 +1064,7 @@ document.getElementById("btn-share").addEventListener("click", function() {
     var nR = rows.length + (totRow?1:0);
     var hdrH = RH*2.8 + RH + RH; // blue header + section title + col headers
     var pH = hdrH + nR*RH + MARG;
-    var PW2 = tblW1 + MARG*2; doc.addPage([PW2, pH]);
+    doc.addPage([PW, pH]);
 
     function sf(r,g,b){ doc.setFillColor(r,g,b); }
     function st(r,g,b){ doc.setTextColor(r,g,b); }
