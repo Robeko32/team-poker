@@ -1129,16 +1129,14 @@ document.getElementById("btn-share").addEventListener("click", function() {
 
   var tblW1 = t1cws.reduce(function(s,w){return s+w;},0);
 
-  // For non-T1 tables: compute natural widths then force total = tblW1
-  // by adding the difference to the last column
+  // For non-T1 tables: scale each column proportionally to match tblW1
   function autoCws(hdrs, rows, getVals){
     var cws = hdrs.map(function(h,hi){
       return colW(h, rows.map(function(r){return getVals(r)[hi];}));
     });
     var total = cws.reduce(function(s,w){return s+w;},0);
-    // Add all remaining space to last column
-    cws[cws.length-1] += (tblW1 - total);
-    return cws;
+    var scale = tblW1 / total;
+    return cws.map(function(w){ return w * scale; });
   }
 
   // Build doc — all pages via addPage, delete initial blank
@@ -1179,7 +1177,7 @@ document.getElementById("btn-share").addEventListener("click", function() {
   makePage(finalDoc,"Próximas Sedes",hhdrs,halns,autoCws(hhdrs,hRs,hvals),hRs,hvals,
     function(r){var isN=hRs.indexOf(r)===0; return [BLACK,isN?[0,70,127]:BLACK,BLACK];});
 
-  finalDoc.deletePage(1); // remove auto-created blank page
+  finalDoc.deletePage(1);
 
   var fname="resumen_poker_T"+T.nro+".pdf";
   var pdfBlob=finalDoc.output("blob");
