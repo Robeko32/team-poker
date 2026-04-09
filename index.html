@@ -1075,9 +1075,11 @@ document.getElementById("btn-share").addEventListener("click", function() {
       var s=String(v||"");
       var sw=doc.getTextWidth(s);
       var tx;
-      if(aln==="right"){ tx=x+w-PAD; }
+      // Manual alignment — position text explicitly, no jsPDF alignment
+      if(aln==="right"){ tx=x+w-PAD-sw; }
       else if(aln==="center"){ tx=x+(w-sw)/2; }
       else { tx=x+PAD; }
+      if(tx < x) tx=x+PAD; // never overflow left edge of cell
       doc.text(s,tx,y2+RH/2,{baseline:"middle"});
     }
 
