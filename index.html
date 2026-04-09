@@ -990,22 +990,13 @@ document.getElementById("btn-share").addEventListener("click", function() {
     return {de:p.de,a:p.a,monto:(ov!==undefined&&ov>=0)?ov:p.montoBase};
   });
 
-  // ── jsPDF ────────────────────────────────────────────────────────────────
-  // Simple approach: fixed column widths for T1, all pages same width via addPage
+  // ── jsPDF — A4 portrait, auto-fit columns ──────────────────────────────
+  var doc = new window.jspdf.jsPDF({orientation:"portrait",unit:"mm",format:"a4"});
+  var PW=210, PH=297, M=8, CW=PW-M*2;
+  var FS=8, RH=6.5, PAD=1.5;
 
-  var PAD   = 1.5;  // cell padding mm
-  var MARG  = 3;    // page left margin mm
-  var RH    = 6.5;  // row height mm
-  var FS    = 8;    // font size pt — same for ALL tables
-
-  var HDR_BG = [217,226,243];
-  var TOT_BG = [255,255,0];
-  var ALT_BG = [242,242,242];
-  var WHITE  = [255,255,255];
-  var BLACK  = [0,0,0];
-  var GREEN  = [0,128,0];
-  var RED    = [192,0,0];
-  var BLUE_H = [31,78,121];
+  var HDR_BG=[217,226,243], TOT_BG=[255,255,0], ALT_BG=[242,242,242];
+  var WHITE=[255,255,255], BLACK=[0,0,0], GREEN=[0,128,0], RED=[192,0,0], BLUE_H=[31,78,121];
 
   function fmtN(n){ return "$"+Math.round(Math.abs(n)).toLocaleString("es-CL"); }
   function fmtNN(n){ return Math.round(Math.abs(n)).toLocaleString("es-CL"); }
@@ -1013,102 +1004,73 @@ document.getElementById("btn-share").addEventListener("click", function() {
   function fmtSN(n){ return (n>0?"+":n<0?"-":"")+fmtNN(n); }
   function fmtPct(n){ return (n*100).toFixed(1)+"%"; }
 
-  // Use a scratch doc to measure text widths
-  var _doc = new window.jspdf.jsPDF({unit:"mm",format:"a4"});
-  _doc.setFont("helvetica","normal"); _doc.setFontSize(FS);
-  function tw(s){ return _doc.getTextWidth(String(s||"")); }
-  function colW(hdr, vals){
-    var w = tw(hdr);
-    vals.forEach(function(v){ var vw=tw(v); if(vw>w) w=vw; });
-    return w + PAD*2;
+  doc.setFont("helvetica","normal"); doc.setFontSize(FS);
+  function tw(s){ return doc.getTextWidth(String(s||"")); }
+  function colW(hdr, vals){ var w=tw(hdr); vals.forEach(function(v){var vw=tw(v);if(vw>w)w=vw;}); return w+PAD*2; }
+
+  // Compute column widths, scale to fit CW
+  function fitCols(hdrs, rows, getVals){
+    var cws = hdrs.map(function(h,i){ return colW(h, rows.map(function(r){return getVals(r)[i];})); });
+    var tot = cws.reduce(function(s,w){return s+w;},0);
+    if(tot > CW){ var sc=CW/tot; cws=cws.map(function(w){return w*sc;}); }
+    return cws;
   }
 
-  // Prepare data
-  var t1s = t1;
-  var t2s = t2.slice().sort(function(a,b){return b.res-a.res;});
-  var tPs = PLAYERS.map(function(n){
-    var h=H[n]||{torneos:0,pts:0};
-    return {name:n,t:h.torneos||0,pts:parseInt(h.pts)||0};
-  }).sort(function(a,b){return b.pts-a.pts;});
-  var hRs = PLAYERS.map(function(n){
-    var h=H[n]||{};
-    return {name:n,ratio:combRatio(h)};
-  }).sort(function(a,b){return a.ratio-b.ratio;});
-
-  var tBuyin=0,tPremio=0,tRes=0,tComida=0,tTotal=0,tCajas=0;
-  t1s.forEach(function(r){tCajas+=r.tc;tBuyin+=r.bi;tPremio+=r.pm;tRes+=r.rj;tComida+=r.comida;tTotal+=r.rj+r.comida;});
-
-  // T1 row values
-  function t1vals(r){
-    var nm=r.name.length>7?r.name.slice(0,7):r.name;
-    return [nm, String(r.tc), fmtNN(r.bi), r.pos>0?(r.pos+"°"):"--",
-            r.pm>0?fmtNN(r.pm):"--", fmtSN(r.rj),
-            r.isHost?("+"+fmtNN(r.comida)):"-8.000", fmtSN(r.rj+r.comida)];
-  }
-
-  // Compute T1 column widths
-  var t1hdrs = ["Jugador","Caj","Buy-In","P°","Premio","Resultado","Comida","Total"];
-  var t1alns = ["left","center","right","center","right","right","right","right"];
-  var t1cws  = t1hdrs.map(function(h,hi){
-    return colW(h, t1s.map(function(r){return t1vals(r)[hi];}));
-  });
-  // Add totals row to measurement
-  var totVals = ["TOTALE",String(tCajas),fmtNN(tBuyin),"",fmtNN(tPremio),fmtSN(tRes),fmtNN(tComida),fmtSN(tTotal)];
-  t1cws = t1cws.map(function(w,i){ var vw=tw(totVals[i])+PAD*2; return Math.max(w,vw); });
-
-  var PW = t1cws.reduce(function(s,w){return s+w;},0) + MARG*2; // page width
-  window._debugPW = PW; window._debugTblW1 = tblW1;
-
-  // Generic page builder
-  function makePage(doc, title, hdrs, alns, cws, rows, getVals, getColors, totRow){
-    var nR = rows.length + (totRow?1:0);
-    var hdrH = RH*2.8 + RH + RH; // blue header + section title + col headers
-    var pH = hdrH + nR*RH + MARG;
-    doc.addPage([PW, pH]);
-
-    function sf(r,g,b){ doc.setFillColor(r,g,b); }
-    function st(r,g,b){ doc.setTextColor(r,g,b); }
-    function sfnt(bold){ doc.setFont("helvetica",bold?"bold":"normal"); doc.setFontSize(FS); }
-    function cell(v,x,y2,w,bg,col,bold,aln){
-      sf(bg[0],bg[1],bg[2]); doc.rect(x,y2,w,RH,"F");
-      doc.setDrawColor(180,180,180); doc.setLineWidth(0.15); doc.rect(x,y2,w,RH,"S");
-      st(col[0],col[1],col[2]); sfnt(bold);
-      var s=String(v||"");
-      var sw=doc.getTextWidth(s);
-      var tx;
-      // Manual alignment — position text explicitly, no jsPDF alignment
-      if(aln==="right"){ tx=x+w-PAD-sw; }
-      else if(aln==="center"){ tx=x+(w-sw)/2; }
-      else { tx=x+PAD; }
-      if(tx < x) tx=x+PAD; // never overflow left edge of cell
-      doc.text(s,tx,y2+RH/2,{baseline:"middle"});
-    }
-
-    var tblW = cws.reduce(function(s,w){return s+w;},0);
-    var y=0;
-
-    // Blue header
-    sf(BLUE_H[0],BLUE_H[1],BLUE_H[2]); doc.rect(MARG,y,tblW,RH*2.8,"F");
-    st(255,255,255); sfnt(true); doc.setFontSize(FS+2);
-    doc.text("Team Poker",MARG+PAD,y+RH*0.85,{baseline:"middle"});
-    sfnt(false); doc.setFontSize(FS-1);
+  function drawHeader(title, tblW){
     var d2=new Date(T.fecha+"T12:00:00");
     var fStr=isNaN(d2.getTime())?T.fecha:d2.toLocaleDateString("es-CL",{day:"numeric",month:"long",year:"numeric"});
-    doc.text("Torneo #"+T.nro+" | "+fStr,MARG+PAD,y+RH*1.7,{baseline:"middle"});
-    doc.text("Host: "+(T.host||"--")+" | Pozo: "+fmtN(c.pozo),MARG+PAD,y+RH*2.5,{baseline:"middle"});
-    y+=RH*2.8;
-
+    doc.setFillColor(BLUE_H[0],BLUE_H[1],BLUE_H[2]); doc.rect(M,6,tblW,16,"F");
+    doc.setTextColor(255,255,255); doc.setFont("helvetica","bold"); doc.setFontSize(FS+2);
+    doc.text("Team Poker",M+PAD,12,{baseline:"middle"});
+    doc.setFont("helvetica","normal"); doc.setFontSize(FS-1);
+    doc.text("Torneo #"+T.nro+" | "+fStr,M+PAD,17,{baseline:"middle"});
+    doc.text("Host: "+(T.host||"--")+" | Pozo: "+fmtN(c.pozo),M+PAD,22,{baseline:"middle"});
     // Section title
-    sf(HDR_BG[0],HDR_BG[1],HDR_BG[2]); doc.rect(MARG,y,tblW,RH,"F");
-    doc.setDrawColor(150,150,150); doc.setLineWidth(0.2); doc.rect(MARG,y,tblW,RH,"S");
-    st(BLUE_H[0],BLUE_H[1],BLUE_H[2]); sfnt(true); doc.setFontSize(FS);
-    doc.text(title,MARG+PAD,y+RH/2,{baseline:"middle"});
-    y+=RH;
+    doc.setFillColor(HDR_BG[0],HDR_BG[1],HDR_BG[2]);
+    doc.rect(M,22,tblW,RH,"F");
+    doc.setDrawColor(150,150,150); doc.setLineWidth(0.2);
+    doc.rect(M,22,tblW,RH,"S");
+    doc.setTextColor(BLUE_H[0],BLUE_H[1],BLUE_H[2]);
+    doc.setFont("helvetica","bold"); doc.setFontSize(FS);
+    doc.text(title,M+PAD,22+RH/2,{baseline:"middle"});
+    return 22+RH; // return y after header
+  }
+
+  function drawTable(title, hdrs, alns, rows, getVals, getColors, totRow){
+    doc.addPage();
+    var cws = fitCols(hdrs, rows, getVals);
+    if(totRow) cws = hdrs.map(function(h,i){
+      var w = colW(h, rows.map(function(r){return getVals(r)[i];}));
+      var tw2 = tw(String(totRow.vals[i]||""))+PAD*2;
+      return Math.max(w, tw2);
+    });
+    var tot = cws.reduce(function(s,w){return s+w;},0);
+    if(tot > CW){ var sc2=CW/tot; cws=cws.map(function(w){return w*sc2;}); }
+    var tblW = cws.reduce(function(s,w){return s+w;},0);
+
+    var y = drawHeader(title, tblW);
+
+    function cell(v,x,y2,w,bg,col,bold){
+      doc.setFillColor(bg[0],bg[1],bg[2]); doc.rect(x,y2,w,RH,"F");
+      doc.setDrawColor(200,200,200); doc.setLineWidth(0.12); doc.rect(x,y2,w,RH,"S");
+      doc.setTextColor(col[0],col[1],col[2]);
+      doc.setFont("helvetica",bold?"bold":"normal"); doc.setFontSize(FS);
+      var s=String(v||""); var sw=tw(s);
+      var aln=alns[alns.indexOf(alns[hdrs.indexOf? 0:0])]; // placeholder
+      return s;
+    }
 
     // Col headers
-    var cx=MARG;
+    doc.setFillColor(HDR_BG[0],HDR_BG[1],HDR_BG[2]);
+    doc.rect(M,y,tblW,RH,"F");
+    doc.setDrawColor(150,150,150); doc.rect(M,y,tblW,RH,"S");
+    var cx=M;
     hdrs.forEach(function(h,hi){
-      cell(h,cx,y,cws[hi],HDR_BG,BLUE_H,true,"center"); cx+=cws[hi];
+      doc.setTextColor(BLUE_H[0],BLUE_H[1],BLUE_H[2]);
+      doc.setFont("helvetica","bold"); doc.setFontSize(FS-1);
+      var sw=tw(h); var tx=cx+(cws[hi]-sw)/2;
+      doc.text(h,tx,y+RH/2,{baseline:"middle"});
+      cx+=cws[hi];
     });
     y+=RH;
 
@@ -1117,101 +1079,129 @@ document.getElementById("btn-share").addEventListener("click", function() {
       var bg=ri%2===0?WHITE:ALT_BG;
       var vals=getVals(r);
       var cols=getColors?getColors(r):null;
-      cx=MARG;
+      doc.setFillColor(bg[0],bg[1],bg[2]); doc.rect(M,y,tblW,RH,"F");
+      doc.setDrawColor(210,210,210); doc.setLineWidth(0.1);
+      doc.line(M,y+RH,M+tblW,y+RH);
+      cx=M;
       vals.forEach(function(v,hi){
         var col=cols&&cols[hi]?cols[hi]:BLACK;
-        cell(v,cx,y,cws[hi],bg,col,false,alns[hi]); cx+=cws[hi];
+        doc.setTextColor(col[0],col[1],col[2]);
+        doc.setFont("helvetica","normal"); doc.setFontSize(FS);
+        var s=String(v||""); var sw=tw(s);
+        var a=alns[hi];
+        var tx = a==="right"?cx+cws[hi]-PAD-sw : a==="center"?cx+(cws[hi]-sw)/2 : cx+PAD;
+        doc.text(s,tx,y+RH/2,{baseline:"middle"});
+        cx+=cws[hi];
       });
       y+=RH;
     });
 
     // Totals
     if(totRow){
-      cx=MARG;
+      doc.setFillColor(TOT_BG[0],TOT_BG[1],TOT_BG[2]); doc.rect(M,y,tblW,RH,"F");
+      doc.setDrawColor(150,150,150); doc.setLineWidth(0.2); doc.rect(M,y,tblW,RH,"S");
+      cx=M;
       totRow.vals.forEach(function(v,hi){
         var col=totRow.cols&&totRow.cols[hi]?totRow.cols[hi]:BLACK;
-        cell(v,cx,y,cws[hi],TOT_BG,col,true,alns[hi]); cx+=cws[hi];
+        doc.setTextColor(col[0],col[1],col[2]);
+        doc.setFont("helvetica","bold"); doc.setFontSize(FS);
+        var s=String(v||""); var sw=tw(s);
+        var a=alns[hi];
+        var tx = a==="right"?cx+cws[hi]-PAD-sw : a==="center"?cx+(cws[hi]-sw)/2 : cx+PAD;
+        doc.text(s,tx,y+RH/2,{baseline:"middle"});
+        cx+=cws[hi];
       });
     }
   }
 
-  var tblW1 = t1cws.reduce(function(s,w){return s+w;},0);
+  // Prepare data
+  var t1s=t1, t2s=t2.slice().sort(function(a,b){return b.res-a.res;});
+  var tPs=PLAYERS.map(function(n){var h=H[n]||{torneos:0,pts:0};return{name:n,t:h.torneos||0,pts:parseInt(h.pts)||0};}).sort(function(a,b){return b.pts-a.pts;});
+  var hRs=PLAYERS.map(function(n){var h=H[n]||{};return{name:n,ratio:combRatio(h)};}).sort(function(a,b){return a.ratio-b.ratio;});
+  var tB=0,tP=0,tR=0,tC=0,tT=0,tCaj=0;
+  t1s.forEach(function(r){tCaj+=r.tc;tB+=r.bi;tP+=r.pm;tR+=r.rj;tC+=r.comida;tT+=r.rj+r.comida;});
 
-  // For non-T1 tables: scale each column proportionally to match tblW1
-  function autoCws(hdrs, rows, getVals){
-    var cws = hdrs.map(function(h,hi){
-      return colW(h, rows.map(function(r){return getVals(r)[hi];}));
+  function t1v(r){var nm=r.name.length>7?r.name.slice(0,7):r.name;return[nm,String(r.tc),fmtNN(r.bi),r.pos>0?(r.pos+"°"):"--",r.pm>0?fmtNN(r.pm):"--",fmtSN(r.rj),r.isHost?("+"+fmtNN(r.comida)):"-8.000",fmtSN(r.rj+r.comida)];}
+
+  // First page: set on page 1 (don't addPage)
+  doc.setFont("helvetica","normal"); doc.setFontSize(FS);
+  var t1hdrs=["Jugador","Caj","Buy-In","P°","Premio","Resultado","Comida","Total"];
+  var t1alns=["left","center","right","center","right","right","right","right"];
+  var totV=["TOTALE",String(tCaj),fmtNN(tB),"",fmtNN(tP),fmtSN(tR),fmtNN(tC),fmtSN(tT)];
+  var totCols=[BLACK,BLACK,BLACK,BLACK,BLACK,tR>=0?GREEN:RED,BLACK,tT>=0?GREEN:RED];
+  var t1cws=t1hdrs.map(function(h,i){return Math.max(colW(h,t1s.map(function(r){return t1v(r)[i];})),tw(String(totV[i]||""))+PAD*2);});
+  var t1tot=t1cws.reduce(function(s,w){return s+w;},0);
+  if(t1tot>CW){var sc0=CW/t1tot;t1cws=t1cws.map(function(w){return w*sc0;});}
+  var tblW1=t1cws.reduce(function(s,w){return s+w;},0);
+
+  var y=drawHeader("Resultado del torneo",tblW1);
+  doc.setFillColor(HDR_BG[0],HDR_BG[1],HDR_BG[2]);doc.rect(M,y,tblW1,RH,"F");
+  doc.setDrawColor(150,150,150);doc.rect(M,y,tblW1,RH,"S");
+  var cx=M;
+  t1hdrs.forEach(function(h,hi){
+    doc.setTextColor(BLUE_H[0],BLUE_H[1],BLUE_H[2]);doc.setFont("helvetica","bold");doc.setFontSize(FS-1);
+    var sw=tw(h);doc.text(h,cx+(t1cws[hi]-sw)/2,y+RH/2,{baseline:"middle"});cx+=t1cws[hi];
+  });
+  y+=RH;
+  t1s.forEach(function(r,ri){
+    var bg=ri%2===0?WHITE:ALT_BG;
+    var vals=t1v(r);
+    var cols=[r.isHost?[0,70,127]:BLACK,BLACK,BLACK,BLACK,r.pm>0?GREEN:BLACK,r.rj>0?GREEN:r.rj<0?RED:BLACK,r.isHost?GREEN:RED,(r.rj+r.comida)>0?GREEN:(r.rj+r.comida)<0?RED:BLACK];
+    doc.setFillColor(bg[0],bg[1],bg[2]);doc.rect(M,y,tblW1,RH,"F");
+    doc.setDrawColor(210,210,210);doc.setLineWidth(0.1);doc.line(M,y+RH,M+tblW1,y+RH);
+    cx=M;
+    vals.forEach(function(v,hi){
+      doc.setTextColor(cols[hi][0],cols[hi][1],cols[hi][2]);doc.setFont("helvetica","normal");doc.setFontSize(FS);
+      var s=String(v||"");var sw=tw(s);var a=t1alns[hi];
+      var tx=a==="right"?cx+t1cws[hi]-PAD-sw:a==="center"?cx+(t1cws[hi]-sw)/2:cx+PAD;
+      doc.text(s,tx,y+RH/2,{baseline:"middle"});cx+=t1cws[hi];
     });
-    var total = cws.reduce(function(s,w){return s+w;},0);
-    var scale = tblW1 / total;
-    cws = cws.map(function(w){ return w * scale; });
-    // Force exact sum due to floating point
-    var actualSum = cws.reduce(function(s,w){return s+w;},0);
-    cws[cws.length-1] += (tblW1 - actualSum);
-    return cws;
+    y+=RH;
+  });
+  // Totals
+  doc.setFillColor(TOT_BG[0],TOT_BG[1],TOT_BG[2]);doc.rect(M,y,tblW1,RH,"F");
+  doc.setDrawColor(150,150,150);doc.setLineWidth(0.2);doc.rect(M,y,tblW1,RH,"S");
+  cx=M;
+  totV.forEach(function(v,hi){
+    doc.setTextColor(totCols[hi][0],totCols[hi][1],totCols[hi][2]);doc.setFont("helvetica","bold");doc.setFontSize(FS);
+    var s=String(v||"");var sw=tw(s);var a=t1alns[hi];
+    var tx=a==="right"?cx+t1cws[hi]-PAD-sw:a==="center"?cx+(t1cws[hi]-sw)/2:cx+PAD;
+    doc.text(s,tx,y+RH/2,{baseline:"middle"});cx+=t1cws[hi];
+  });
+
+  // Pages 2-5 via drawTable (uses addPage internally)
+  var t2v=function(r){return[String(t2s.indexOf(r)+1)+".",r.name,String(r.t),fmtS2(r.res),fmtS2(Math.round(r.t>0?r.res/r.t:0))];};
+  drawTable("Ranking acumulado del año",["#","Jugador","Torneos","Acumulado","Promedio"],["center","left","center","right","right"],t2s,t2v,function(r){var rc=r.res>0?GREEN:r.res<0?RED:BLACK;return[BLACK,BLACK,BLACK,rc,rc];});
+
+  var lRs=pagos.length?pagos:[{de:"Todo cuadra",a:"",monto:0}];
+  var lv=function(r){return[r.de,r.monto>0?"->":"",r.a,r.monto>0?fmtN(r.monto):""];};
+  drawTable("Quién paga a quién",["Paga","","Recibe","Monto"],["left","center","left","right"],lRs,lv,function(){return[[192,0,0],[100,100,100],[0,112,0],BLACK];});
+
+  var pv=function(r){return[String(tPs.indexOf(r)+1)+".",r.name,String(r.t),String(r.pts)];};
+  drawTable("Ranking por puntos",["#","Jugador","Torneos","Puntos"],["center","left","center","center"],tPs,pv,function(r){return[BLACK,BLACK,BLACK,r.pts>0?GREEN:BLACK];});
+
+  var hv=function(r){return[String(hRs.indexOf(r)+1)+".",r.name+(hRs.indexOf(r)===0?" <-":""),fmtPct(r.ratio)];};
+  drawTable("Próximas Sedes",["#","Jugador","% Combinado"],["center","left","center"],hRs,hv,function(r){var isN=hRs.indexOf(r)===0;return[BLACK,isN?[0,70,127]:BLACK,BLACK];});
+
+  // Footer
+  var np=doc.internal.getNumberOfPages();
+  for(var pi=1;pi<=np;pi++){
+    doc.setPage(pi);
+    doc.setFillColor(HDR_BG[0],HDR_BG[1],HDR_BG[2]);doc.rect(0,PH-8,PW,8,"F");
+    doc.setTextColor(BLUE_H[0],BLUE_H[1],BLUE_H[2]);doc.setFont("helvetica","normal");doc.setFontSize(7);
+    doc.text("Team Poker | Torneo #"+T.nro+" | "+new Date().toLocaleDateString("es-CL"),PW/2,PH-4,{align:"center",baseline:"middle"});
+    doc.text(pi+"/"+np,PW-M,PH-4,{align:"right",baseline:"middle"});
   }
 
-  // Build doc — all pages via addPage, delete initial blank
-  var finalDoc = new window.jspdf.jsPDF({unit:"mm",format:[PW,100]});
-
-  // T1
-  makePage(finalDoc,"Resultado del torneo",t1hdrs,t1alns,t1cws,t1s,t1vals,
-    function(r){var tot=r.rj+r.comida; return [r.isHost?[0,70,127]:BLACK,BLACK,BLACK,BLACK,
-      r.pm>0?GREEN:BLACK,r.rj>0?GREEN:r.rj<0?RED:BLACK,r.isHost?GREEN:RED,tot>0?GREEN:tot<0?RED:BLACK];},
-    {vals:totVals,cols:[BLACK,BLACK,BLACK,BLACK,BLACK,tRes>=0?GREEN:RED,BLACK,tTotal>=0?GREEN:RED]});
-
-  // T2 — ranking
-  var t2hdrs=["#","Jugador","Torneos","Acumulado","Promedio"];
-  var t2alns=["center","left","center","right","right"];
-  var t2vals=function(r){return [String(t2s.indexOf(r)+1)+".",r.name,r.t,fmtS2(r.res),fmtS2(Math.round(r.t>0?r.res/r.t:0))];};
-  makePage(finalDoc,"Ranking acumulado del año",t2hdrs,t2alns,autoCws(t2hdrs,t2s,t2vals),t2s,t2vals,
-    function(r){var rc=r.res>0?GREEN:r.res<0?RED:BLACK; return [BLACK,BLACK,BLACK,rc,rc];});
-
-  // T3 — liquidación
-  var lRows=pagos.length?pagos:[{de:"Todo cuadra",a:"",monto:0}];
-  var lhdrs=["Paga","","Recibe","Monto"];
-  var lalns=["left","center","left","right"];
-  var lvals=function(r){return [r.de,r.monto>0?"->":"",r.a,r.monto>0?fmtN(r.monto):""];};
-  makePage(finalDoc,"Quién paga a quién",lhdrs,lalns,autoCws(lhdrs,lRows,lvals),lRows,lvals,
-    function(){return [[192,0,0],[100,100,100],[0,112,0],BLACK];});
-
-  // T4 — puntos
-  var phdrs=["#","Jugador","Torneos","Puntos"];
-  var palns=["center","left","center","center"];
-  var pvals=function(r){return [String(tPs.indexOf(r)+1)+".",r.name,r.t,r.pts];};
-  makePage(finalDoc,"Ranking por puntos",phdrs,palns,autoCws(phdrs,tPs,pvals),tPs,pvals,
-    function(r){return [BLACK,BLACK,BLACK,r.pts>0?GREEN:BLACK];});
-
-  // T5 — hosts
-  var hhdrs=["#","Jugador","% Combinado"];
-  var halns=["center","left","center"];
-  var hvals=function(r){return [String(hRs.indexOf(r)+1)+".",r.name+(hRs.indexOf(r)===0?" <-":""),fmtPct(r.ratio)];};
-  makePage(finalDoc,"Próximas Sedes",hhdrs,halns,autoCws(hhdrs,hRs,hvals),hRs,hvals,
-    function(r){var isN=hRs.indexOf(r)===0; return [BLACK,isN?[0,70,127]:BLACK,BLACK];});
-
-  console.log("PW:", PW, "tblW1:", tblW1);
-  try {
-    var _np=finalDoc.internal.getNumberOfPages();
-    console.log("Pages:", _np);
-    for(var _pi=1;_pi<=_np;_pi++){finalDoc.setPage(_pi);var _ps=finalDoc.internal.pageSize;console.log("Page",_pi,"w:",_ps.getWidth().toFixed(3));}
-    finalDoc.deletePage(1);
-  } catch(e){ console.error("Error:", e.message); }
-
   var fname="resumen_poker_T"+T.nro+".pdf";
-  var pdfBlob=finalDoc.output("blob");
+  var pdfBlob=doc.output("blob");
   var pdfUrl=URL.createObjectURL(pdfBlob);
   var isMobile=navigator.maxTouchPoints>0;
   if(isMobile&&navigator.share&&navigator.canShare&&navigator.canShare({files:[new File([pdfBlob],fname,{type:"application/pdf"})]})){
-    navigator.share({title:"Team Poker Torneo #"+T.nro,text:"Resumen del torneo",
-      files:[new File([pdfBlob],fname,{type:"application/pdf"})]})
-      .catch(function(){dlPdf(pdfUrl,fname);});
+    navigator.share({title:"Team Poker Torneo #"+T.nro,text:"Resumen del torneo",files:[new File([pdfBlob],fname,{type:"application/pdf"})]}).catch(function(){dlPdf(pdfUrl,fname);});
   } else { dlPdf(pdfUrl,fname); }
 
-  function dlPdf(url,name){
-    var a=document.createElement("a");a.href=url;a.download=name;
-    document.body.appendChild(a);a.click();
-    setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(url);},300);
-  }
+  function dlPdf(url,name){var a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(url);},300);}
 });
 </script>
 
