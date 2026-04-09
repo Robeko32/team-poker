@@ -1019,21 +1019,21 @@ document.getElementById("btn-share").addEventListener("click", function() {
   function drawHeader(title, tblW){
     var d2=new Date(T.fecha+"T12:00:00");
     var fStr=isNaN(d2.getTime())?T.fecha:d2.toLocaleDateString("es-CL",{day:"numeric",month:"long",year:"numeric"});
-    doc.setFillColor(BLUE_H[0],BLUE_H[1],BLUE_H[2]); doc.rect(M,6,tblW,16,"F");
+    doc.setFillColor(BLUE_H[0],BLUE_H[1],BLUE_H[2]); doc.rect(M,6,tblW,18,"F");
     doc.setTextColor(255,255,255); doc.setFont("helvetica","bold"); doc.setFontSize(FS+2);
     doc.text("Team Poker",M+PAD,12,{baseline:"middle"});
     doc.setFont("helvetica","normal"); doc.setFontSize(FS-1);
     doc.text("Torneo #"+T.nro+" | "+fStr,M+PAD,17,{baseline:"middle"});
-    doc.text("Host: "+(T.host||"--")+" | Pozo: "+fmtN(c.pozo),M+PAD,22,{baseline:"middle"});
+    doc.text("Host: "+(T.host||"--")+" | Pozo: "+fmtN(c.pozo),M+PAD,20,{baseline:"middle"});
     // Section title
     doc.setFillColor(HDR_BG[0],HDR_BG[1],HDR_BG[2]);
-    doc.rect(M,22,tblW,RH,"F");
+    doc.rect(M,24,tblW,RH,"F");
     doc.setDrawColor(150,150,150); doc.setLineWidth(0.2);
-    doc.rect(M,22,tblW,RH,"S");
+    doc.rect(M,24,tblW,RH,"S");
     doc.setTextColor(BLUE_H[0],BLUE_H[1],BLUE_H[2]);
     doc.setFont("helvetica","bold"); doc.setFontSize(FS);
-    doc.text(title,M+PAD,22+RH/2,{baseline:"middle"});
-    return 22+RH; // return y after header
+    doc.text(title,M+PAD,24+RH/2,{baseline:"middle"});
+    return 24+RH; // return y after header
   }
 
   function drawTable(title, hdrs, alns, rows, getVals, getColors, totRow){
@@ -1127,7 +1127,7 @@ document.getElementById("btn-share").addEventListener("click", function() {
   doc.setFont("helvetica","normal"); doc.setFontSize(FS);
   var t1hdrs=["Jugador","Caj","Buy-In","P°","Premio","Resultado","Comida","Total"];
   var t1alns=["left","center","right","center","right","right","right","right"];
-  var totV=["TOTALE",String(tCaj),fmtNN(tB),"",fmtNN(tP),fmtSN(tR),fmtNN(tC),fmtSN(tT)];
+  var totV=["TOTAL",String(tCaj),fmtNN(tB),"",fmtNN(tP),fmtSN(tR),fmtNN(tC),fmtSN(tT)];
   var totCols=[BLACK,BLACK,BLACK,BLACK,BLACK,tR>=0?GREEN:RED,BLACK,tT>=0?GREEN:RED];
   var t1cws=t1hdrs.map(function(h,i){return Math.max(colW(h,t1s.map(function(r){return t1v(r)[i];})),tw(String(totV[i]||""))+PAD*2);});
   var t1tot=t1cws.reduce(function(s,w){return s+w;},0);
