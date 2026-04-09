@@ -1189,9 +1189,13 @@ document.getElementById("btn-share").addEventListener("click", function() {
   makePage(finalDoc,"Próximas Sedes",hhdrs,halns,autoCws(hhdrs,hRs,hvals),hRs,hvals,
     function(r){var isN=hRs.indexOf(r)===0; return [BLACK,isN?[0,70,127]:BLACK,BLACK];});
 
-  var _np=finalDoc.internal.getNumberOfPages();
-  for(var _pi=1;_pi<=_np;_pi++){finalDoc.setPage(_pi);var _ps=finalDoc.internal.pageSize;console.log("Page",_pi,"w:",_ps.getWidth().toFixed(3),"h:",_ps.getHeight().toFixed(3));}
-  finalDoc.deletePage(1);
+  console.log("PW:", PW, "tblW1:", tblW1);
+  try {
+    var _np=finalDoc.internal.getNumberOfPages();
+    console.log("Pages:", _np);
+    for(var _pi=1;_pi<=_np;_pi++){finalDoc.setPage(_pi);var _ps=finalDoc.internal.pageSize;console.log("Page",_pi,"w:",_ps.getWidth().toFixed(3));}
+    finalDoc.deletePage(1);
+  } catch(e){ console.error("Error:", e.message); }
 
   var fname="resumen_poker_T"+T.nro+".pdf";
   var pdfBlob=finalDoc.output("blob");
