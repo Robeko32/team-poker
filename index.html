@@ -1072,8 +1072,13 @@ document.getElementById("btn-share").addEventListener("click", function() {
       sf(bg[0],bg[1],bg[2]); doc.rect(x,y2,w,RH,"F");
       doc.setDrawColor(180,180,180); doc.setLineWidth(0.15); doc.rect(x,y2,w,RH,"S");
       st(col[0],col[1],col[2]); sfnt(bold);
-      var tx=aln==="right"?x+w-PAD:aln==="center"?x+w/2:x+PAD;
-      doc.text(String(v||""),tx,y2+RH/2,{align:aln==="right"?"right":aln==="center"?"center":"left",baseline:"middle"});
+      var s=String(v||"");
+      var sw=doc.getTextWidth(s);
+      var tx;
+      if(aln==="right"){ tx=x+w-PAD; }
+      else if(aln==="center"){ tx=x+(w-sw)/2; }
+      else { tx=x+PAD; }
+      doc.text(s,tx,y2+RH/2,{baseline:"middle"});
     }
 
     var tblW = cws.reduce(function(s,w){return s+w;},0);
