@@ -1127,15 +1127,17 @@ document.getElementById("btn-share").addEventListener("click", function() {
     }
   }
 
-  // Compute cws for other tables — scale to match T1 table width exactly
+  // Compute cws for other tables — natural fit, last col absorbs remainder to match tblW1
   var tblW1 = t1cws.reduce(function(s,w){return s+w;},0);
   function autoCws(hdrs, rows, getVals){
-    var natural = hdrs.map(function(h,hi){
+    var cws = hdrs.map(function(h,hi){
       return colW(h, rows.map(function(r){return getVals(r)[hi];}));
     });
-    var natW = natural.reduce(function(s,w){return s+w;},0);
-    var scale = tblW1 / natW;
-    return natural.map(function(w){ return w*scale; });
+    var total = cws.reduce(function(s,w){return s+w;},0);
+    var diff = tblW1 - total;
+    // Distribute difference proportionally across all columns
+    cws = cws.map(function(w){ return w + diff*(w/total); });
+    return cws;
   }
 
   // Build doc — all pages via addPage, delete initial blank
