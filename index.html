@@ -101,6 +101,27 @@ body{background:var(--bg);color:var(--text);font-family:var(--f);font-size:14px;
 
 /* Pos select */
 .ps{height:26px;width:46px;background:#f9fafb;border:1px solid var(--border2);border-radius:var(--r);font-family:var(--m);font-size:12px;text-align:center;padding:0 2px;outline:none;-webkit-appearance:none;cursor:pointer}
+.ha-year-btn{padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:var(--bg2);font-size:12px;font-weight:600;cursor:pointer;color:var(--muted)}
+.ha-year-btn.active{background:var(--blue);border-color:var(--blue);color:#fff}
+.ha-tbl{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+.ha-tbl th{background:var(--bg3);color:var(--muted);font-weight:600;padding:5px 8px;text-align:center;border-bottom:1px solid var(--border)}
+.ha-tbl th:first-child{text-align:left}
+.ha-tbl td{padding:5px 8px;border-bottom:1px solid var(--border2);text-align:right}
+.ha-tbl td:first-child{text-align:left;font-weight:500}
+.ha-tbl td:nth-child(3),.ha-tbl td:nth-child(4),.ha-tbl td:nth-child(5){text-align:center}
+.hist-item{border:1px solid var(--border);border-radius:8px;margin:4px 0;overflow:hidden}
+.hist-hdr{display:flex;align-items:center;gap:4px;padding:8px 12px;cursor:pointer;background:var(--bg2)}
+.hist-hdr:hover{background:var(--bg3)}
+.hist-nro{font-family:var(--m);font-weight:600;font-size:13px;color:var(--blue)}
+.hist-fecha{font-size:12px;color:var(--muted);flex:1}
+.hist-host{font-size:11px;color:var(--hint);background:var(--bg3);padding:2px 6px;border-radius:4px}
+.hist-del{font-size:11px;color:#dc2626;background:none;border:1px solid #dc2626;border-radius:4px;padding:2px 6px;cursor:pointer;margin-left:4px}
+.hist-body{display:none;padding:8px 12px;border-top:1px solid var(--border)}
+.hist-body.open{display:block}
+.hist-tbl{width:100%;border-collapse:collapse;font-size:12px}
+.hist-tbl th{background:var(--bg3);color:var(--muted);font-weight:600;padding:4px 6px;text-align:center;border-bottom:1px solid var(--border)}
+.hist-tbl td{padding:4px 6px;border-bottom:1px solid var(--border2);text-align:center}
+.hist-tbl td:first-child{text-align:left;font-weight:500}
 .pos-btns{display:flex;gap:3px;flex-wrap:wrap;justify-content:center}
 .pos-btn{height:26px;min-width:26px;padding:0 5px;border:1px solid var(--border2);border-radius:5px;background:#f9fafb;font-family:var(--m);font-size:11px;font-weight:500;cursor:pointer;color:var(--muted);transition:all .1s}
 .pos-btn.active{background:var(--amber-l);border-color:var(--amber-b);color:var(--amber);font-weight:700}
@@ -166,6 +187,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--f);font-size:14px;
   <div class="hdr-right">
     <span class="sync" id="sync-badge">Conectando...</span>
     <span id="user-email" style="font-size:11px;color:var(--muted);font-family:var(--m)"></span>
+    <button class="btn" onclick="openHistorialAnual()" style="font-size:11px;height:26px;padding:0 8px">Historial</button>
     <button class="btn" id="btn-logout" style="font-size:11px;height:26px;padding:0 8px">Salir</button>
     <button class="btn wa" id="btn-share">📸 Compartir resumen</button>
     <button class="btn g" id="btn-excel">⇓ Excel</button>
@@ -242,6 +264,18 @@ body{background:var(--bg);color:var(--text);font-family:var(--f);font-size:14px;
   ● Comida $8.000 por asistente al host. El host no paga.<br>
   ● Sincronizado en tiempo real con Firebase.
 </div>
+</div>
+
+<!-- Historial Anual Modal -->
+<div id="modal-historial" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;overflow-y:auto;-webkit-overflow-scrolling:touch">
+  <div style="background:var(--bg);margin:20px auto;max-width:480px;border-radius:12px;padding:20px;box-shadow:0 8px 32px rgba(0,0,0,0.3)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <h2 style="font-size:16px;font-weight:700;color:var(--fg)">Historial anual</h2>
+      <button onclick="closeHistorialAnual()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted)">x</button>
+    </div>
+    <div id="ha-years" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px"></div>
+    <div id="ha-content"></div>
+  </div>
 </div>
 
 <!-- Login screen -->
@@ -834,6 +868,52 @@ function renderHistorial() {
       +'<tbody>'+rows+'</tbody></table></div></div>';
   }).join("");
 }
+var _haData = {};
+DB.ref("acumuladosAnuales").on("value", function(snap){ _haData = snap.val()||{}; });
+var _haYear = null;
+
+function openHistorialAnual(){
+  document.getElementById("modal-historial").style.display = "block";
+  renderHaYears();
+}
+function closeHistorialAnual(){
+  document.getElementById("modal-historial").style.display = "none";
+}
+function renderHaYears(){
+  var el = document.getElementById("ha-years");
+  var years = Object.keys(_haData).sort(function(a,b){return b-a;});
+  if(!years.length){
+    el.innerHTML = '<span style="color:var(--muted);font-size:12px">No hay datos guardados aun.</span>';
+    document.getElementById("ha-content").innerHTML = "";
+    return;
+  }
+  el.innerHTML = years.map(function(y){
+    return '<button class="ha-year-btn'+(_haYear===y?" active":"")
+      +'" onclick="selectHaYear(\x27'+y+'\x27)">'+y+'</button>';
+  }).join("");
+  if(!_haYear || !_haData[_haYear]) selectHaYear(years[0]);
+}
+function selectHaYear(year){
+  _haYear = year;
+  document.querySelectorAll(".ha-year-btn").forEach(function(b){
+    b.classList.toggle("active", b.textContent===year);
+  });
+  var data = _haData[year]||{};
+  var rows = Object.keys(data).sort(function(a,b){return (data[b].res||0)-(data[a].res||0);});
+  var pos = ["1.","2.","3."];
+  var html = '<table class="ha-tbl"><thead><tr><th>Jugador</th><th>Resultado</th><th>Torneos</th><th>Host</th><th>Puntos</th></tr></thead><tbody>';
+  rows.forEach(function(name,i){
+    var d=data[name]||{}, res=d.res||0;
+    var rs=(res>=0?"+":"-")+"$"+Math.round(Math.abs(res)).toLocaleString("es-CL");
+    html+='<tr><td>'+(i<3?pos[i]+" ":"")+name+'</td>'
+      +'<td style="color:'+(res>=0?"#16a34a":"#dc2626")+';font-weight:600">'+rs+'</td>'
+      +'<td>'+(d.torneos||0)+'</td><td>'+(d.veces||0)+'</td>'
+      +'<td style="color:#6366f1;font-weight:600">'+(d.pts||0)+'</td></tr>';
+  });
+  html += '</tbody></table>';
+  document.getElementById("ha-content").innerHTML = html;
+}
+
 function toggleHistPanel(){
   var body=document.getElementById("hist-body");
   var btn=document.getElementById("btn-hist-toggle");
