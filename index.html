@@ -940,7 +940,7 @@ function renderHostTable() {
   }).sort(function(a,b){return a.ratio-b.ratio;});
   var maxR = Math.max.apply(null, rows.map(function(r){return r.ratio;})) || 0.01;
   var nx   = rows[0].name;
-  var html = '<thead><tr><th>Jugador</th><th title="Veces host año ant.">Host a.a.</th><th title="Asistencias año ant.">Asist. a.a.</th><th>Host año</th><th>Torneos</th><th>% combinado</th><th style="min-width:100px">Dist.</th></tr></thead><tbody>';
+  var html = '<thead><tr><th>Jugador</th><th title="Veces como host año anterior">Host a.a.</th><th title="Torneos jugados año anterior">Torneos a.a.</th><th>Host año</th><th>Torneos</th><th>% combinado</th><th style="min-width:100px">Dist.</th></tr></thead><tbody>';
   rows.forEach(function(r) {
     var pA  = r.torneos > 0 ? ((r.veces/r.torneos)*100).toFixed(1) : "0.0";
     var pC  = (r.ratio*100).toFixed(1);
