@@ -226,6 +226,14 @@ body{background:var(--bg);color:var(--text);font-family:var(--f);font-size:14px;
   <div style="padding:0"><table class="ht" id="host-tbl"></table></div>
 </div>
 
+<div class="panel">
+  <div class="ph2" style="display:flex;align-items:center;justify-content:space-between">
+    <h2>Historial de torneos</h2>
+    <span style="font-size:11px;color:var(--muted)" id="hist-count"></span>
+  </div>
+  <div id="hist-body" style="padding:8px 0"><span class="nop">Cargando...</span></div>
+</div>
+
 <div class="foot">
   ● Premios: 1-4 jug.=1 ganador(100%) · 5-6=2(60/40) · 7-8=3(50/30/20) · 9=4(40/30/20/10)<br>
   ● Comida $8.000 por asistente al host. El host no paga.<br>
@@ -907,13 +915,12 @@ DB.ref("lastCommittedNro").on("value", function(snap) {
 });
 
 function commitHistory() {
-  console.log("commitHistory called, T.nro="+T.nro+" _lastCommittedNro="+_lastCommittedNro);
   if (!T || !T.players) return;
   var c = calcPozo();
   if (c.active.length === 0) return;
   // Prevent committing the same torneo twice — check Firebase directly
   var nroToCommit = T.nro;
-  if (nroToCommit === _lastCommittedNro) { console.log("Already committed, skipping"); return; }
+  if (nroToCommit === _lastCommittedNro) return;
   _lastCommittedNro = nroToCommit;
   DB.ref("lastCommittedNro").set(nroToCommit);
 
@@ -941,7 +948,6 @@ function commitHistory() {
     var pm2=(p.premioOverride>=0)?p.premioOverride:(isW2?pr.amounts[p.pos-1]:0);
     htRecord.jugadores[p.name]={cajas:p.cajasIni+p.rebuys,pos:p.pos||0,resultado:pm2-bi2,isHost:p.name===T.host};
   });
-  console.log("Saving historialTorneos T"+T.nro);
   DB.ref("historialTorneos/T"+T.nro).set(htRecord, function(err){ console.log(err ? "historialTorneos ERROR:"+err : "historialTorneos OK T"+T.nro); });
 }
 
