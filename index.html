@@ -907,13 +907,15 @@ DB.ref("lastCommittedNro").on("value", function(snap) {
 });
 
 function commitHistory() {
+  console.log("commitHistory called, T.nro="+T.nro+" _lastCommittedNro="+_lastCommittedNro);
   if (!T || !T.players) return;
   var c = calcPozo();
   if (c.active.length === 0) return;
-  // Prevent committing the same torneo twice
-  if (T.nro === _lastCommittedNro) return;
-  _lastCommittedNro = T.nro;
-  DB.ref("lastCommittedNro").set(T.nro);
+  // Prevent committing the same torneo twice — check Firebase directly
+  var nroToCommit = T.nro;
+  if (nroToCommit === _lastCommittedNro) { console.log("Already committed, skipping"); return; }
+  _lastCommittedNro = nroToCommit;
+  DB.ref("lastCommittedNro").set(nroToCommit);
 
   var pr = calcPremios(c.pozo, c.active.length);
   c.active.forEach(function(p) {
@@ -939,6 +941,7 @@ function commitHistory() {
     var pm2=(p.premioOverride>=0)?p.premioOverride:(isW2?pr.amounts[p.pos-1]:0);
     htRecord.jugadores[p.name]={cajas:p.cajasIni+p.rebuys,pos:p.pos||0,resultado:pm2-bi2,isHost:p.name===T.host};
   });
+  console.log("Saving historialTorneos T"+T.nro);
   DB.ref("historialTorneos/T"+T.nro).set(htRecord, function(err){ console.log(err ? "historialTorneos ERROR:"+err : "historialTorneos OK T"+T.nro); });
 }
 
