@@ -939,7 +939,7 @@ function commitHistory() {
     var pm2=(p.premioOverride>=0)?p.premioOverride:(isW2?pr.amounts[p.pos-1]:0);
     htRecord.jugadores[p.name]={cajas:p.cajasIni+p.rebuys,pos:p.pos||0,resultado:pm2-bi2,isHost:p.name===T.host};
   });
-  DB.ref("historialTorneos/T"+T.nro).set(htRecord);
+  DB.ref("historialTorneos/T"+T.nro).set(htRecord, function(err){ console.log(err ? "historialTorneos ERROR:"+err : "historialTorneos OK T"+T.nro); });
 }
 
 document.getElementById("btn-reset").addEventListener("click", function() {
