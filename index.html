@@ -399,6 +399,11 @@ function startListeners() {
     if (currentUser) renderAll();
   }, function(){ setBadge("Sin conexión", "err"); });
 
+  DB.ref("historialTorneos").on("value", function(snap) {
+    HT = snap.val() || {};
+    if (currentUser) renderHistorial();
+  });
+
   DB.ref("historial").on("value", function(snap) {
     var val = snap.val();
     H = val || defH();
@@ -925,6 +930,16 @@ function commitHistory() {
     if (isW) H[p.name].pts = (parseInt(H[p.name].pts)||0) + (pr.ng - p.pos + 1);
   });
   saveH();
+
+  // Save torneo record to historialTorneos
+  var htRecord = {nro:T.nro, fecha:T.fecha, tipo:T.tipo, host:T.host, jugadores:{}};
+  c.active.forEach(function(p) {
+    var bi2=(p.cajasIni+p.rebuys)*cajaVal();
+    var isW2=p.pos>=1&&p.pos<=pr.ng;
+    var pm2=(p.premioOverride>=0)?p.premioOverride:(isW2?pr.amounts[p.pos-1]:0);
+    htRecord.jugadores[p.name]={cajas:p.cajasIni+p.rebuys,pos:p.pos||0,resultado:pm2-bi2,isHost:p.name===T.host};
+  });
+  DB.ref("historialTorneos/T"+T.nro).set(htRecord);
 }
 
 document.getElementById("btn-reset").addEventListener("click", function() {
