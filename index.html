@@ -229,9 +229,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--f);font-size:14px;
 <div class="panel">
   <div class="ph2" style="display:flex;align-items:center;justify-content:space-between">
     <h2>Historial de torneos</h2>
-    <span style="font-size:11px;color:var(--muted)" id="hist-count"></span>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="font-size:11px;color:var(--muted)" id="hist-count"></span>
+      <button class="btn" id="btn-hist-toggle" style="font-size:11px;height:26px;padding:0 10px" onclick="toggleHistPanel()">Ver</button>
+    </div>
   </div>
-  <div id="hist-body" style="padding:8px 0"><span class="nop">Cargando...</span></div>
+  <div id="hist-body" style="padding:8px 0;display:none"></div>
 </div>
 
 <div class="foot">
@@ -818,17 +821,26 @@ function renderHistorial() {
     var rows=Object.keys(jgs).sort(function(a,b){return (jgs[b].resultado||0)-(jgs[a].resultado||0);}).map(function(name){
       var j=jgs[name];
       var rStr=(j.resultado>=0?"+":"-")+"$"+Math.round(Math.abs(j.resultado)).toLocaleString("es-CL");
-      return '<tr><td>'+(j.isHost?"* ":"")+name+'</td><td>'+j.cajas+'</td><td>'+(j.pos>0?j.pos+"°":"--")+'</td><td style="color:'+(j.resultado>=0?"#16a34a":"#dc2626")+'">'+rStr+'</td></tr>';
+      return '<tr><td>'+name+'</td><td style="text-align:center">'+j.cajas+'</td><td>'+(j.pos>0?j.pos+"°":"--")+'</td><td style="color:'+(j.resultado>=0?"#16a34a":"#dc2626")+'">'+(rStr)+'</td></tr>';
     }).join("");
     return '<div class="hist-item"><div class="hist-hdr" onclick="toggleHist(\x27'+k+'\x27)">'
       +'<span class="hist-nro">#'+t.nro+'</span>'
-      +'<span class="hist-fecha">'+fStr+' · '+(t.tipo==="addon"?"Add-On":"Corto")+'</span>'
+      +'<span style="width:6px;display:inline-block"></span>'
+      +'<span class="hist-fecha">'+fStr+'</span>'
       +'<span class="hist-host">'+(t.host||"—")+'</span>'
       +'<button class="hist-del" onclick="event.stopPropagation();eliminarTorneo(\x27'+k+'\x27)">Eliminar</button>'
       +'</div><div class="hist-body" id="hb-'+k+'">'
       +'<table class="hist-tbl"><thead><tr><th>Jugador</th><th>Cajas</th><th>Pos.</th><th>Resultado</th></tr></thead>'
       +'<tbody>'+rows+'</tbody></table></div></div>';
   }).join("");
+}
+function toggleHistPanel(){
+  var body=document.getElementById("hist-body");
+  var btn=document.getElementById("btn-hist-toggle");
+  if(!body) return;
+  var isOpen=body.style.display!=="none";
+  body.style.display=isOpen?"none":"block";
+  if(btn) btn.textContent=isOpen?"Ver":"Ocultar";
 }
 function toggleHist(k){var el=document.getElementById("hb-"+k);if(el)el.classList.toggle("open");}
 function eliminarTorneo(k){
