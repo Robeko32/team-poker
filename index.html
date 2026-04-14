@@ -816,7 +816,7 @@ function renderHistorial() {
   body.innerHTML=keys.map(function(k){
     var t=HT[k];
     var d=new Date((t.fecha||"")+"T12:00:00");
-    var fStr=isNaN(d.getTime())?(t.fecha||""):d.toLocaleDateString("es-CL",{day:"numeric",month:"short",year:"numeric"});
+    var fStr=isNaN(d.getTime())?(t.fecha||""):d.toLocaleDateString("es-CL",{day:"numeric",month:"short",year:"numeric"}).replace(/\.$/, "");
     var jgs=t.jugadores||{};
     var rows=Object.keys(jgs).sort(function(a,b){return (jgs[b].resultado||0)-(jgs[a].resultado||0);}).map(function(name){
       var j=jgs[name];
@@ -827,7 +827,7 @@ function renderHistorial() {
       +'<span class="hist-nro">#'+t.nro+'</span>'
       +'<span style="width:6px;display:inline-block"></span>'
       +'<span class="hist-fecha">'+fStr+'</span>'
-      +'<span class="hist-host">'+(t.host||"—")+'</span>'
+      +'<span style="width:6px;display:inline-block"></span><span class="hist-host">'+(t.host||"—")+'</span>'
       +'<button class="hist-del" onclick="event.stopPropagation();eliminarTorneo(\x27'+k+'\x27)">Eliminar</button>'
       +'</div><div class="hist-body" id="hb-'+k+'">'
       +'<table class="hist-tbl"><thead><tr><th>Jugador</th><th>Cajas</th><th>Pos.</th><th>Resultado</th></tr></thead>'
