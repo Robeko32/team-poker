@@ -278,7 +278,8 @@ var AUTH = firebase.auth();
 var AUTHORIZED = [
   "robkolton@gmail.com",
   "jaime.camhi@gmail.com",
-  "roberto.camhi@gmail.com"
+  "roberto.camhi@gmail.com",
+  "dennis@gateno.cl"
 ];
 
 var currentUser = null;
@@ -457,6 +458,7 @@ function renderAll() {
   renderRankTable();
   renderPtsTable();
   renderHostTable();
+  renderHistorial();
 }
 
 function renderConfig() {
@@ -786,6 +788,43 @@ function renderPtsTable() {
   tbl.innerHTML=html+'</tbody>';
 }
 
+// HISTORIAL
+// ─────────────────────────────────────────────────────────────────────────────
+function renderHistorial() {
+  var body=document.getElementById("hist-body");
+  var countEl=document.getElementById("hist-count");
+  if(!body||!HT) return;
+  var keys=Object.keys(HT).sort(function(a,b){return (HT[b].nro||0)-(HT[a].nro||0);});
+  if(countEl) countEl.textContent=keys.length+" torneo"+(keys.length!==1?"s":"");
+  if(!keys.length){body.innerHTML='<span class="nop">No hay torneos guardados aún.</span>';return;}
+  body.innerHTML=keys.map(function(k){
+    var t=HT[k];
+    var d=new Date((t.fecha||"")+"T12:00:00");
+    var fStr=isNaN(d.getTime())?(t.fecha||""):d.toLocaleDateString("es-CL",{day:"numeric",month:"short",year:"numeric"});
+    var jgs=t.jugadores||{};
+    var rows=Object.keys(jgs).sort(function(a,b){return (jgs[b].resultado||0)-(jgs[a].resultado||0);}).map(function(name){
+      var j=jgs[name];
+      var rStr=(j.resultado>=0?"+":"-")+"$"+Math.round(Math.abs(j.resultado)).toLocaleString("es-CL");
+      return '<tr><td>'+(j.isHost?"* ":"")+name+'</td><td>'+j.cajas+'</td><td>'+(j.pos>0?j.pos+"°":"--")+'</td><td style="color:'+(j.resultado>=0?"#16a34a":"#dc2626")+'">'+rStr+'</td></tr>';
+    }).join("");
+    return '<div class="hist-item"><div class="hist-hdr" onclick="toggleHist(\x27'+k+'\x27)">'
+      +'<span class="hist-nro">#'+t.nro+'</span>'
+      +'<span class="hist-fecha">'+fStr+' · '+(t.tipo==="addon"?"Add-On":"Corto")+'</span>'
+      +'<span class="hist-host">'+(t.host||"—")+'</span>'
+      +'<button class="hist-del" onclick="event.stopPropagation();eliminarTorneo(\x27'+k+'\x27)">Eliminar</button>'
+      +'</div><div class="hist-body" id="hb-'+k+'">'
+      +'<table class="hist-tbl"><thead><tr><th>Jugador</th><th>Cajas</th><th>Pos.</th><th>Resultado</th></tr></thead>'
+      +'<tbody>'+rows+'</tbody></table></div></div>';
+  }).join("");
+}
+function toggleHist(k){var el=document.getElementById("hb-"+k);if(el)el.classList.toggle("open");}
+function eliminarTorneo(k){
+  var t=HT&&HT[k]; if(!t) return;
+  if(!confirm("¿Eliminar torneo #"+t.nro+" del historial?")) return;
+  if(!confirm("Esta acción NO revierte el acumulado. ¿Confirmar?")) return;
+  DB.ref("historialTorneos/"+k).remove();
+}
+
 // HOST TABLE
 // ─────────────────────────────────────────────────────────────────────────────
 function renderHostTable() {
@@ -889,18 +928,22 @@ function commitHistory() {
 }
 
 document.getElementById("btn-reset").addEventListener("click", function() {
-  if (!confirm("ATENCIÓN: Borrará TODO el historial. ¿Seguro?")) return;
+  if (!confirm("ATENCIÓN: Cerrar el año borrará el historial acumulado y el historial de torneos. ¿Seguro?")) return;
   if (!confirm("Segunda confirmación. ¿Continuar?")) return;
-  var ppV={}, ppT={};
+  var year = new Date().getFullYear();
+  var snapshot = {};
   PLAYERS.forEach(function(p){
-    ppV[p]=(H[p]&&parseInt(H[p].prevVeces))||0;
-    ppT[p]=(H[p]&&parseInt(H[p].prevTorneos))||0;
+    snapshot[p]={res:(H[p]&&H[p].res)||0,pts:(H[p]&&H[p].pts)||0,torneos:(H[p]&&H[p].torneos)||0,veces:(H[p]&&H[p].veces)||0};
   });
+  DB.ref("acumuladosAnuales/"+year).set(snapshot);
   H = defH();
-  PLAYERS.forEach(function(p){H[p].prevVeces=ppV[p]; H[p].prevTorneos=ppT[p];});
+  PLAYERS.forEach(function(p){H[p].prevVeces=snapshot[p].veces; H[p].prevTorneos=snapshot[p].torneos;});
   saveH();
+  DB.ref("historialTorneos").remove();
+  DB.ref("lastCommittedNro").set(-1);
+  _lastCommittedNro = -1;
   T = defT(); saveT(); renderAll();
-  alert("Reiniciado. Datos del año anterior conservados.");
+  alert("Año cerrado correctamente. Acumulado guardado en Firebase.");
 });
 
 document.getElementById("btn-excel").addEventListener("click", function() {
