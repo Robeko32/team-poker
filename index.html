@@ -188,6 +188,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--f);font-size:14px;
     <span class="sync" id="sync-badge">Conectando...</span>
     <span id="user-email" style="font-size:11px;color:var(--muted);font-family:var(--m)"></span>
     <button class="btn" onclick="openHistorialAnual()" style="font-size:11px;height:26px;padding:0 8px">Historial</button>
+    <button class="btn" onclick="document.getElementById('modal-ayuda').style.display='block'" style="font-size:11px;height:26px;padding:0 8px">?</button>
     <button class="btn" id="btn-logout" style="font-size:11px;height:26px;padding:0 8px">Salir</button>
     <button class="btn wa" id="btn-share">📸 Compartir resumen</button>
     <button class="btn g" id="btn-excel">⇓ Excel</button>
@@ -264,6 +265,30 @@ body{background:var(--bg);color:var(--text);font-family:var(--f);font-size:14px;
   ● Comida $8.000 por asistente al host. El host no paga.<br>
   ● Sincronizado en tiempo real con Firebase.
 </div>
+</div>
+
+<!-- Help Modal -->
+<div id="modal-ayuda" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;overflow-y:auto;-webkit-overflow-scrolling:touch">
+  <div style="background:var(--bg);margin:20px auto;max-width:480px;border-radius:12px;padding:20px;box-shadow:0 8px 32px rgba(0,0,0,0.3)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <h2 style="font-size:16px;font-weight:700;color:var(--fg)">Guia rapida</h2>
+      <button onclick="document.getElementById('modal-ayuda').style.display='none'" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted)">x</button>
+    </div>
+    <div style="font-size:13px;line-height:1.7;color:var(--fg)">
+      <div style="margin-bottom:14px"><span style="font-weight:600;color:var(--blue)">1. Selecciona el host</span><br>Elige quien es el host del torneo en el selector correspondiente. Sin host no se puede compartir el resumen.</div>
+      <div style="margin-bottom:14px"><span style="font-weight:600;color:var(--blue)">2. Marca asistencia y cajas</span><br>Desactiva el check de los jugadores que no estan presentes. Para los que si estan, usa los botones +/- en la columna Cajas para ajustar el total de cajas compradas (empieza en 1).</div>
+      <div style="margin-bottom:14px"><span style="font-weight:600;color:var(--blue)">3. Asigna posiciones</span><br>Presiona el boton 1, 2, 3... en la fila de cada ganador. Solo puede haber un jugador por posicion — si asignas una ya ocupada, el anterior la pierde automaticamente.</div>
+      <div style="margin-bottom:14px"><span style="font-weight:600;color:var(--blue)">4. Ajusta premios si es necesario</span><br>Los premios se calculan automaticamente. Si necesitas modificar alguno, edita el campo Premio — queda en azul. Si la suma no cuadra con el pozo, aparece un aviso rojo con la diferencia.</div>
+      <div style="margin-bottom:14px"><span style="font-weight:600;color:var(--blue)">5. Revisa la liquidacion</span><br>En la seccion Liquidacion veras quien le paga a quien y cuanto. Puedes editar los montos si es necesario — igual que los premios, aparece aviso si no cuadran.</div>
+      <div style="margin-bottom:14px"><span style="font-weight:600;color:var(--blue)">6. Comparte el resumen</span><br>Presiona Compartir resumen. Genera el PDF, guarda el torneo en el historial y actualiza el acumulado del ano. En movil se abre para compartir; en computador se descarga.</div>
+      <div style="margin-bottom:14px"><span style="font-weight:600;color:var(--blue)">7. Inicia el siguiente torneo</span><br>Presiona Nuevo torneo para limpiar la pantalla. El acumulado ya fue guardado al compartir.</div>
+      <div style="border-top:1px solid var(--border);padding-top:12px;margin-top:4px;color:var(--muted)">
+        <strong style="color:var(--fg)">Fin de ano:</strong> Usa Reiniciar todo para cerrar el ano — guarda el acumulado y limpia todo.<br>
+        <strong style="color:var(--fg)">Historial:</strong> El boton Historial en el header muestra los acumulados de anos anteriores.<br>
+        <strong style="color:var(--fg)">Sincronizacion:</strong> Todos los autorizados ven los mismos datos en tiempo real.
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Historial Anual Modal -->
