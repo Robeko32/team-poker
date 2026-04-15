@@ -190,9 +190,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--f);font-size:14px;
     <button class="btn" onclick="openHistorialAnual()" style="font-size:11px;height:26px;padding:0 8px">Historial</button>
     <button class="btn" onclick="document.getElementById('modal-ayuda').style.display='block'" style="font-size:11px;height:26px;padding:0 8px">?</button>
     <button class="btn" id="btn-logout" style="font-size:11px;height:26px;padding:0 8px">Salir</button>
-    <button class="btn wa" id="btn-share">📸 Compartir resumen</button>
-    <button class="btn g" id="btn-excel">⇓ Excel</button>
-    <button class="btn" id="btn-nuevo">Nuevo torneo</button>
+    <button class="btn wa" id="btn-share" style="font-size:14px;height:36px;padding:0 16px">📸 Compartir resumen</button>
+    <button class="btn" id="btn-nuevo" style="font-size:14px;height:36px;padding:0 16px">Nuevo torneo</button>
     <button class="btn d" id="btn-reset">🗑 Reiniciar todo</button>
   </div>
 </div>
@@ -972,7 +971,7 @@ function renderHostTable() {
     var bw  = Math.round(r.ratio/maxR*100);
     var isN = r.name === nx;
     html += '<tr>'
-      +'<td style="font-weight:500">'+r.name+(isN?'<span class="nb">próximo</span>':"")+'</td>'
+      +'<td style="font-weight:500">'+r.name+(isN?'<span class="nb">★</span>':"")+'</td>'
       +'<td><input class="ppi" type="number" min="0" step="1" value="'+r.prevVeces
         +'" onchange="savePrevHost(\''+r.name+'\',\'veces\',this.value)"></td>'
       +'<td><input class="ppi" type="number" min="0" step="1" value="'+r.prevTorneos
@@ -1087,42 +1086,6 @@ document.getElementById("btn-reset").addEventListener("click", function() {
   alert("Año cerrado correctamente. Acumulado guardado en Firebase.");
 });
 
-document.getElementById("btn-excel").addEventListener("click", function() {
-  if (typeof XLSX==="undefined"){alert("Excel aún no cargó, intenta de nuevo.");return;}
-  if (!T) return;
-  var c  = calcPozo();
-  var pr = c.active.length ? calcPremios(c.pozo,c.active.length) : {ng:0,amounts:[]};
-  var cobroHost = c.active.filter(function(p){return p.name!==T.host;}).length*8000;
-  var d   = new Date(T.fecha+"T12:00:00");
-  var mes = isNaN(d.getTime())?"":d.toLocaleDateString("es-CL",{month:"short"});
-  var ano = isNaN(d.getTime())?"":d.getFullYear();
-
-  var all = c.active.concat(T.players.filter(function(p){return !p.asiste;}));
-  var rows = all.map(function(p){
-    var isHost=p.name===T.host, a=p.asiste;
-    var tc=a?p.cajasIni+p.rebuys:0, bi=tc*cajaVal();
-    var pos=a?p.pos:0, isW=a&&pos>=1&&pos<=pr.ng;
-    var pm=isW?pr.amounts[pos-1]:0, cm=a?(isHost?0:8000):0;
-    var res=a?(isHost?(pm-bi+cobroHost):(pm-bi-cm)):0;
-    var r={}; r.Fecha=a?(isNaN(d.getTime())?T.fecha:d):null;
-    r.Año=ano;r.Mes=mes;r["# Torneo"]=T.nro;r.Tipo=T.tipo==="addon"?"Add-On":"Corto";
-    r.Jugador=p.name;r.Asistió=a?"Sí":"No";r.Host=isHost?"Sí":"No";
-    r["Cajas"]=tc;
-    r["Buy-In ($)"]=bi;r.Posición=pos>0?pos:"";r["Premio ($)"]=pm;
-    r["Comida ($)"]=cm;r["Resultado ($)"]=res;r["Res. juego ($)"]=a?pm-bi:0;
-    return r;
-  });
-
-  var wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), "Torneo");
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(
-    PLAYERS.map(function(n){
-      var h=H[n]||{torneos:0,res:0};
-      return {Pos:0,Jugador:n,"Torneos":h.torneos||0,"Resultado ($)":h.res||0};
-    }).sort(function(a,b){return b["Resultado ($)"]-a["Resultado ($)"];}).map(function(r,i){r.Pos=i+1;return r;})
-  ), "Ranking");
-  XLSX.writeFile(wb, "poker_"+T.fecha+"_T"+T.nro+".xlsx");
-});
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SHARE IMAGE
