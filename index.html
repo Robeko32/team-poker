@@ -191,7 +191,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--f);font-size:14px;
     <button class="btn" onclick="document.getElementById('modal-ayuda').style.display='block'" style="font-size:11px;height:26px;padding:0 8px">?</button>
     <button class="btn" id="btn-logout" style="font-size:11px;height:26px;padding:0 8px">Salir</button>
     <button class="btn wa" id="btn-share" style="font-size:14px;height:36px;padding:0 16px">📸 Compartir resumen</button>
-    <button class="btn" id="btn-nuevo" style="font-size:14px;height:36px;padding:0 16px">Nuevo torneo</button>
+    <button class="btn" id="btn-nuevo" style="font-size:14px;height:36px;padding:0 16px;background:#3b82f6;color:#fff;border-color:#3b82f6">Nuevo torneo</button>
     <button class="btn d" id="btn-reset">🗑 Reiniciar todo</button>
   </div>
 </div>
@@ -608,8 +608,7 @@ function renderTable() {
     if (p.asiste) resultado = isHost ? (premio - buyin + cobroHost) : (premio - buyin - 8000);
 
     var trCls = (p.asiste ? "" : " absent") + (isWinner ? " winner" : "");
-    var badge = (isHost ? '<span class="pill ph">host</span>' : "")
-              + (isNext ? '<span class="pill pnx">próximo</span>' : "");
+    var badge = (isHost ? '<span class="pill ph">host</span>' : "");
 
     var chkSvg = p.asiste
       ? '<svg viewBox="0 0 16 16" fill="none"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5" stroke="'+
@@ -971,7 +970,7 @@ function renderHostTable() {
     var bw  = Math.round(r.ratio/maxR*100);
     var isN = r.name === nx;
     html += '<tr>'
-      +'<td style="font-weight:500">'+r.name+(isN?'<span class="nb">★</span>':"")+'</td>'
+      +'<td style="font-weight:500">'+r.name+(isN?'<span class="nb">próximo</span>':"")+'</td>'
       +'<td><input class="ppi" type="number" min="0" step="1" value="'+r.prevVeces
         +'" onchange="savePrevHost(\''+r.name+'\',\'veces\',this.value)"></td>'
       +'<td><input class="ppi" type="number" min="0" step="1" value="'+r.prevTorneos
