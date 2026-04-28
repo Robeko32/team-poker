@@ -483,6 +483,7 @@ function startListeners() {
         if (p.premioOverride === undefined) p.premioOverride = -1;
       });
       if (!T.pagoOverrides) T.pagoOverrides = {};
+      _pagosExtra = T.pagosExtra || [];
     } else {
       T = defT();
       saveT();
@@ -825,6 +826,19 @@ function renderPayments() {
   }).join("");
   var diff=Math.abs(sumOver-sumBase);
   if(diff>10) html+='<div style="background:#dc2626;color:#fff;font-weight:700;font-size:12px;padding:8px 12px;border-radius:6px;margin-top:6px;text-align:center">⚠ Los pagos suman $'+Math.round(sumOver).toLocaleString("es-CL")+' pero el total calculado es $'+Math.round(sumBase).toLocaleString("es-CL")+'. Diferencia: $'+Math.round(diff).toLocaleString("es-CL")+'</div>';
+  // Extra payments
+  if(_pagosExtra && _pagosExtra.length){
+    html += '<div style="font-size:11px;color:var(--muted);padding:6px 0 2px;font-weight:600;border-top:1px solid var(--border);margin-top:6px">Pagos adicionales</div>';
+    _pagosExtra.forEach(function(pe,idx2){
+      html += '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border2)">'
+        +'<span style="flex:1;font-size:13px;color:#dc2626;font-weight:500">'+pe.de+'</span>'
+        +'<span style="font-size:11px;color:var(--muted)">→</span>'
+        +'<span style="flex:1;font-size:13px;color:#16a34a;font-weight:500">'+pe.a+'</span>'
+        +'<span style="font-family:var(--m);font-size:13px;font-weight:600">$'+Math.round(pe.monto).toLocaleString("es-CL")+'</span>'
+        +'<button onclick="eliminarPagoExtra('+idx2+')" style="background:none;border:none;color:#dc2626;font-size:14px;cursor:pointer;padding:0 4px">✕</button>'
+        +'</div>';
+    });
+  }
   body.innerHTML = html;
 }
 
@@ -1010,6 +1024,34 @@ function importarBackup(input){
   input.value = "";
 }
 
+// ── PAGOS EXTRA ──────────────────────────────────────────────────────────────
+function openPagoModal(){
+  var activos = T.players.filter(function(p){return p.asiste;}).map(function(p){return p.name;});
+  var de = document.getElementById("pago-de");
+  var a = document.getElementById("pago-a");
+  de.innerHTML = activos.map(function(n){return '<option value="'+n+'">'+n+'</option>';}).join("");
+  a.innerHTML = activos.map(function(n){return '<option value="'+n+'">'+n+'</option>';}).join("");
+  if(activos.length>1) a.selectedIndex=1;
+  document.getElementById("pago-monto").value = "";
+  document.getElementById("modal-pago").style.display = "flex";
+  setTimeout(function(){ document.getElementById("pago-monto").focus(); }, 100);
+}
+function confirmPagoModal(){
+  var de = document.getElementById("pago-de").value;
+  var a = document.getElementById("pago-a").value;
+  var monto = parseInt(document.getElementById("pago-monto").value);
+  if(!de||!a||de===a||isNaN(monto)||monto<=0){ alert("Datos incompletos o inválidos."); return; }
+  _pagosExtra.push({de:de, a:a, monto:monto});
+  DB.ref("torneo/pagosExtra").set(_pagosExtra);
+  document.getElementById("modal-pago").style.display = "none";
+  renderPayments();
+}
+function eliminarPagoExtra(idx){
+  _pagosExtra.splice(idx,1);
+  DB.ref("torneo/pagosExtra").set(_pagosExtra.length?_pagosExtra:null);
+  renderPayments();
+}
+
 // ── PREMIO MODAL ─────────────────────────────────────────────────────────────
 var _premioIdx = -1;
 
@@ -1129,6 +1171,7 @@ document.getElementById("btn-nuevo").addEventListener("click", function() {
   if (!confirm("¿Iniciar nuevo torneo? Los datos del torneo actual se borrarán.")) return;
   var nro = T.nro+1, tipo = T.tipo;
   T = defT(); T.nro = nro; T.tipo = tipo;
+  _pagosExtra = []; DB.ref("torneo/pagosExtra").set(null);
   saveT(); renderAll();
 });
 
@@ -1431,7 +1474,9 @@ document.getElementById("btn-share").addEventListener("click", function() {
   var t2v=function(r){return[String(t2s.indexOf(r)+1)+".",r.name,String(r.t),fmtS2(r.res),fmtS2(Math.round(r.t>0?r.res/r.t:0))];};
   drawTable("Ranking acumulado del año",["#","Jugador","Torneos","Acumulado","Promedio"],["center","left","center","right","right"],t2s,t2v,function(r){var rc=r.res>0?GREEN:r.res<0?RED:BLACK;return[BLACK,BLACK,BLACK,rc,rc];});
 
-  var lRs=pagos.length?pagos:[{de:"Todo cuadra",a:"",monto:0}];
+  var lRs = pagos.slice();
+  if(_pagosExtra && _pagosExtra.length) _pagosExtra.forEach(function(pe){ lRs.push({de:pe.de, a:pe.a, monto:pe.monto}); });
+  if(!lRs.length) lRs = [{de:"Todo cuadra",a:"",monto:0}];
   var lv=function(r){return[r.de,r.monto>0?"->":"",r.a,r.monto>0?fmtN(r.monto):""];};
   drawTable("Quién paga a quién",["Paga","","Recibe","Monto"],["left","center","left","right"],lRs,lv,function(){return[[192,0,0],[100,100,100],[0,112,0],BLACK];});
 
