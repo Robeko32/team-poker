@@ -124,6 +124,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--f);font-size:14px;
 .hist-tbl th{background:var(--bg3);color:var(--muted);font-weight:600;padding:4px 6px;text-align:center;border-bottom:1px solid var(--border)}
 .hist-tbl td{padding:4px 6px;border-bottom:1px solid var(--border2);text-align:center}
 .hist-tbl td:first-child{text-align:left;font-weight:500}
+.premio-btn{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:13px;font-family:var(--m);color:var(--fg);cursor:pointer;min-width:60px;text-align:center}
+.premio-btn.edited{background:#eff6ff;border-color:var(--blue);color:var(--blue);font-weight:600}
 .pos-btns{display:flex;gap:3px;flex-wrap:wrap;justify-content:center}
 .pos-btn{height:26px;min-width:26px;padding:0 5px;border:1px solid var(--border2);border-radius:5px;background:#f9fafb;font-family:var(--m);font-size:11px;font-weight:500;cursor:pointer;color:var(--muted);transition:all .1s}
 .pos-btn.active{background:var(--amber-l);border-color:var(--amber-b);color:var(--amber);font-weight:700}
@@ -269,6 +271,22 @@ body{background:var(--bg);color:var(--text);font-family:var(--f);font-size:14px;
   &#9679; Comida $8.000 por asistente al host. El host no paga.<br>
   &#9679; Sincronizado en tiempo real con Firebase.
 </div>
+</div>
+
+<!-- Premio Edit Modal -->
+<div id="modal-premio" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:600;display:none;align-items:center;justify-content:center">
+  <div style="background:var(--bg);margin:auto;width:280px;border-radius:12px;padding:20px;box-shadow:0 8px 32px rgba(0,0,0,0.4)">
+    <div style="font-size:14px;font-weight:600;color:var(--fg);margin-bottom:4px" id="modal-premio-title">Editar premio</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:12px" id="modal-premio-sub"></div>
+    <input type="number" id="modal-premio-input" inputmode="numeric" pattern="[0-9]*"
+      style="width:100%;box-sizing:border-box;font-size:22px;font-weight:600;text-align:center;padding:12px;border:2px solid var(--blue);border-radius:8px;background:var(--bg2);color:var(--fg);outline:none"
+      placeholder="0">
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button onclick="closePremioModal()" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--bg2);color:var(--fg);font-size:14px;cursor:pointer">Cancelar</button>
+      <button onclick="confirmPremioModal()" style="flex:1;padding:10px;border:none;border-radius:8px;background:var(--blue);color:#fff;font-size:14px;font-weight:600;cursor:pointer">Listo</button>
+    </div>
+    <button onclick="resetPremioModal()" style="width:100%;margin-top:8px;padding:8px;border:none;border-radius:8px;background:none;color:var(--muted);font-size:12px;cursor:pointer">Restablecer valor automático</button>
+  </div>
 </div>
 
 <!-- Help Modal -->
@@ -573,7 +591,7 @@ function renderSummary() {
   if(!prizeAlert){prizeAlert=document.createElement("div");prizeAlert.id="prize-alert";prizeAlert.style.cssText="display:none;background:#dc2626;color:#fff;font-weight:700;font-size:13px;padding:10px 16px;border-radius:8px;margin-bottom:12px;text-align:center";var pb=document.getElementById("pbar");if(pb)pb.parentNode.insertBefore(prizeAlert,pb);}
   var anyPos2=T.players.some(function(p){return p.pos>0;});
   var hasOv=T.players.some(function(p){return p.premioOverride>=0;});
-  if(anyPos2&&c.active.length>0&&c.pozo>0&&hasOv){var sumP=0;T.players.forEach(function(p){if(p.asiste&&p.pos>=1&&p.pos<=pr.ng)sumP+=(p.premioOverride>=0)?p.premioOverride:(pr.amounts[p.pos-1]||0);});if(Math.abs(sumP-c.pozo)>10){prizeAlert.style.display="block";prizeAlert.textContent="⚠ Los premios suman $"+Math.round(sumP).toLocaleString("es-CL")+" pero el pozo es $"+Math.round(c.pozo).toLocaleString("es-CL")+". Diferencia: $"+Math.round(Math.abs(sumP-c.pozo)).toLocaleString("es-CL");}else prizeAlert.style.display="none";}else if(prizeAlert)prizeAlert.style.display="none";
+  if(anyPos2&&c.active.length>0&&c.pozo>0){var sumP=0;T.players.forEach(function(p){if(p.asiste){var pmB=p.pos>=1&&p.pos<=pr.ng?pr.amounts[p.pos-1]||0:0;sumP+=(p.premioOverride>=0)?p.premioOverride:pmB;}});if(Math.abs(sumP-c.pozo)>10){prizeAlert.style.display="block";prizeAlert.textContent="⚠ Los premios suman $"+Math.round(sumP).toLocaleString("es-CL")+" pero el pozo es $"+Math.round(c.pozo).toLocaleString("es-CL")+". Diferencia: $"+Math.round(Math.abs(sumP-c.pozo)).toLocaleString("es-CL");}else prizeAlert.style.display="none";}else if(prizeAlert)prizeAlert.style.display="none";
 
   var bar = document.getElementById("pbar");
   if (!c.active.length || !c.pozo) {
@@ -650,7 +668,7 @@ function renderTable() {
     var premioEdited = p.asiste && p.premioOverride >= 0 && p.premioOverride !== premioBase;
     var premioInputVal = p.asiste ? (premioEdited ? p.premioOverride : premioBase) : 0;
     var premioEl = p.asiste
-      ? '<input type="text" inputmode="numeric" pattern="[0-9]*" class="premio-inp'+(premioEdited?' edited':'')+'" data-action="premio" data-i="'+i+'" value="'+premioInputVal+'" placeholder="auto" onchange="handlePremio(this)" onclick="this.focus();this.select()" onfocus="this.select()">'
+      ? '<button class="premio-btn'+(premioEdited?' edited':'')+'" onclick="openPremioModal('+i+')">'+(premioEdited?("$"+premioInputVal.toLocaleString("es-CL")):("$"+premioInputVal.toLocaleString("es-CL")))+'</button>'
       : '—';
 
     var resEl = p.asiste
@@ -990,6 +1008,45 @@ function importarBackup(input){
   };
   reader.readAsText(file);
   input.value = "";
+}
+
+// ── PREMIO MODAL ─────────────────────────────────────────────────────────────
+var _premioIdx = -1;
+
+function openPremioModal(i) {
+  _premioIdx = i;
+  var p = T.players[i];
+  var c2 = calcPozo();
+  var pr2 = calcPremios(c2.pozo, c2.active.length);
+  var pmBase = (p.pos>=1&&p.pos<=pr2.ng) ? (pr2.amounts[p.pos-1]||0) : 0;
+  var current = p.premioOverride>=0 ? p.premioOverride : pmBase;
+  document.getElementById("modal-premio-title").textContent = "Premio de " + p.name;
+  document.getElementById("modal-premio-sub").textContent = "Valor automático: $" + Math.round(pmBase).toLocaleString("es-CL");
+  var inp = document.getElementById("modal-premio-input");
+  inp.value = Math.round(current);
+  var modal = document.getElementById("modal-premio");
+  modal.style.display = "flex";
+  setTimeout(function(){ inp.focus(); inp.select(); }, 100);
+}
+
+function closePremioModal() {
+  document.getElementById("modal-premio").style.display = "none";
+  _premioIdx = -1;
+}
+
+function confirmPremioModal() {
+  if(_premioIdx < 0) return;
+  var val = parseInt(document.getElementById("modal-premio-input").value);
+  T.players[_premioIdx].premioOverride = (isNaN(val)||val<0) ? -1 : val;
+  saveT(); renderAll();
+  closePremioModal();
+}
+
+function resetPremioModal() {
+  if(_premioIdx < 0) return;
+  T.players[_premioIdx].premioOverride = -1;
+  saveT(); renderAll();
+  closePremioModal();
 }
 
 function toggleHistPanel(){
