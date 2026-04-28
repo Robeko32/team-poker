@@ -650,7 +650,7 @@ function renderTable() {
     var premioEdited = p.asiste && p.premioOverride >= 0 && p.premioOverride !== premioBase;
     var premioInputVal = p.asiste ? (premioEdited ? p.premioOverride : premioBase) : 0;
     var premioEl = p.asiste
-      ? '<input type="text" inputmode="numeric" class="premio-inp'+(premioEdited?' edited':'')+'" data-action="premio" data-i="'+i+'" value="'+premioInputVal+'" placeholder="auto" onchange="handlePremio(this)">'
+      ? '<input type="text" inputmode="numeric" pattern="[0-9]*" class="premio-inp'+(premioEdited?' edited':'')+'" data-action="premio" data-i="'+i+'" value="'+premioInputVal+'" placeholder="auto" onchange="handlePremio(this)" onclick="this.focus();this.select()" onfocus="this.select()">'
       : '—';
 
     var resEl = p.asiste
